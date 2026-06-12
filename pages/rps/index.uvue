@@ -1,0 +1,115 @@
+<template>
+	<view class="page">
+		<text class="page-title">✊ 猜拳</text>
+
+		<view class="scoreboard">
+			<view class="score-item">
+				<text class="score-label">胜</text>
+				<text class="score-value win">{{ winCount }}</text>
+			</view>
+			<view class="score-item">
+				<text class="score-label">平</text>
+				<text class="score-value draw">{{ drawCount }}</text>
+			</view>
+			<view class="score-item">
+				<text class="score-label">负</text>
+				<text class="score-value lose">{{ loseCount }}</text>
+			</view>
+		</view>
+
+		<view class="result-card">
+			<text class="side-label">🤖 电脑</text>
+			<text class="move-emoji">{{ computerEmoji }}</text>
+			<text class="move-label">{{ computerLabel }}</text>
+			<text class="vs-text">{{ resultText }}</text>
+			<text class="side-label">🧑 你</text>
+			<text class="move-emoji">{{ playerEmoji }}</text>
+			<text class="move-label">{{ playerLabel }}</text>
+		</view>
+
+		<view class="btn-row">
+			<button class="btn-move btn-rock" @tap="play('rock')">✊ 石头</button>
+			<button class="btn-move btn-paper" @tap="play('paper')">✋ 布</button>
+			<button class="btn-move btn-scissors" @tap="play('scissors')">✌️ 剪刀</button>
+		</view>
+
+		<text class="reset-btn" @tap="reset">🔄 重置计分</text>
+	</view>
+</template>
+
+<script setup lang="uts">
+import { ref } from 'vue'
+
+const winCount = ref(0)
+const loseCount = ref(0)
+const drawCount = ref(0)
+
+const playerEmoji = ref('❓')
+const playerLabel = ref('请选择')
+const computerEmoji = ref('❓')
+const computerLabel = ref('等待出拳...')
+const resultText = ref('VS')
+
+const moves: Record<string, { label: string; emoji: string; beats: string }> = {
+	rock:     { label: '石头', emoji: '✊', beats: 'scissors' },
+	paper:    { label: '布',   emoji: '✋', beats: 'rock' },
+	scissors: { label: '剪刀', emoji: '✌️', beats: 'paper' }
+}
+const moveKeys = ['rock', 'paper', 'scissors']
+
+function play(playerMove: string) {
+	const computerMove = moveKeys[Math.floor(Math.random() * 3)]
+	const pm = moves[playerMove]
+	const cm = moves[computerMove]
+
+	playerEmoji.value = pm.emoji
+	playerLabel.value = '你出了 ' + pm.label
+	computerEmoji.value = cm.emoji
+	computerLabel.value = '电脑出了 ' + cm.label
+
+	if (playerMove === computerMove) {
+		resultText.value = '🤝 平局！'
+		drawCount.value++
+	} else if (pm.beats === computerMove) {
+		resultText.value = '🎉 你赢了！'
+		winCount.value++
+	} else {
+		resultText.value = '😵 你输了！'
+		loseCount.value++
+	}
+}
+
+function reset() {
+	winCount.value = 0
+	loseCount.value = 0
+	drawCount.value = 0
+	playerEmoji.value = '❓'
+	playerLabel.value = '请选择'
+	computerEmoji.value = '❓'
+	computerLabel.value = '等待出拳...'
+	resultText.value = 'VS'
+}
+</script>
+
+<style>
+.page { padding: 30rpx; background: #FFF5F5; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.page-title { font-size: 48rpx; font-weight: bold; color: #FF6B6B; margin-top: 40rpx; }
+.scoreboard { display: flex; width: 100%; background: white; border-radius: 20rpx; padding: 24rpx; margin-top: 24rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05); }
+.score-item { flex: 1; text-align: center; }
+.score-label { font-size: 24rpx; color: #888; display: block; }
+.score-value { font-size: 56rpx; font-weight: bold; display: block; }
+.score-value.win { color: #4CAF50; }
+.score-value.draw { color: #FF9800; }
+.score-value.lose { color: #F44336; }
+.result-card { width: 100%; background: white; border-radius: 24rpx; padding: 30rpx; margin-top: 24rpx; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05); }
+.side-label { font-size: 24rpx; color: #888; }
+.move-emoji { font-size: 80rpx; margin: 8rpx 0; }
+.move-label { font-size: 26rpx; color: #666; }
+.vs-text { font-size: 32rpx; font-weight: bold; color: #333; margin: 20rpx 0; }
+.btn-row { display: flex; width: 100%; gap: 16rpx; margin-top: 24rpx; }
+.btn-move { flex: 1; height: 90rpx; line-height: 90rpx; border-radius: 20rpx; font-size: 28rpx; font-weight: bold; color: white; text-align: center; }
+.btn-rock { background: #EF5350; }
+.btn-paper { background: #42A5F5; }
+.btn-scissors { background: #66BB6A; }
+.reset-btn { margin-top: 24rpx; color: #999; font-size: 24rpx; padding: 16rpx; }
+</style>

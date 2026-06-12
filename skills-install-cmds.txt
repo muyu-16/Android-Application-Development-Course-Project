@@ -1,0 +1,19 @@
+========== 已安装 Skills 重装命令 ==========
+
+# 1. Vercel React Best Practices
+npx skills add vercel-labs/agent-skills@vercel-react-best-practices
+
+# 2. Vue Best Practices
+npx skills add vuejs-ai/skills@vue-best-practices
+
+# 3. Frontend Design (Anthropic)
+npx skills add anthropics/skills@frontend-design
+
+# 4. Frontend Responsive Design Standards
+npx skills add am-will/codex-skills@frontend-responsive-design-standards
+
+# 5. GSAP Animation Skills (8个)
+npx skills add https://github.com/greensock/gsap-skills --agent antigravity
+
+# 6. iOS 26 Liquid Glass (液态玻璃)
+npx skills add tryhuset/agent-skills@ios26-liquid-glass
