@@ -49,12 +49,6 @@
       "skillPath": "skills/gsap-utils/SKILL.md",
       "computedHash": "72af4a036d417d6eaef7478eca2f28e760631fb78db822ba34a9c706797aab62"
     },
-    "ios26-liquid-glass": {
-      "source": "tryhuset/agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/ios26-liquid-glass/SKILL.md",
-      "computedHash": "e6d4be0c91619a56fa2cb15b7e15a26836347d62e0df88a20c71188b25ea661d"
-    },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

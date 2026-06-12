@@ -1,67 +1,51 @@
 {
 	"pages": [
 		{
-			"path": "pages/dice/index",
+			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "骰子"
+				"navigationBarTitleText": "PartyGlass",
+				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/wheel/index",
+			"path": "pages/dice/dice",
 			"style": {
-				"navigationBarTitleText": "轮盘"
+				"navigationBarTitleText": "骰子",
+				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/truthdare/index",
+			"path": "pages/roulette/roulette",
 			"style": {
-				"navigationBarTitleText": "真心话大冒险"
+				"navigationBarTitleText": "轮盘",
+				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/rps/index",
+			"path": "pages/truth/truth",
 			"style": {
-				"navigationBarTitleText": "猜拳"
+				"navigationBarTitleText": "真心话大冒险",
+				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/chip/index",
+			"path": "pages/rps/rps",
 			"style": {
-				"navigationBarTitleText": "筹码记账"
+				"navigationBarTitleText": "猜拳",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/chip/chip",
+			"style": {
+				"navigationBarTitleText": "筹码记账",
+				"navigationStyle": "custom"
 			}
 		}
 	],
-	"tabBar": {
-		"color": "#888888",
-		"selectedColor": "#FF6B6B",
-		"backgroundColor": "#FFFFFF",
-		"borderStyle": "black",
-		"list": [
-			{
-				"pagePath": "pages/dice/index",
-				"text": "骰子"
-			},
-			{
-				"pagePath": "pages/wheel/index",
-				"text": "轮盘"
-			},
-			{
-				"pagePath": "pages/truthdare/index",
-				"text": "真心话"
-			},
-			{
-				"pagePath": "pages/rps/index",
-				"text": "猜拳"
-			},
-			{
-				"pagePath": "pages/chip/index",
-				"text": "记账"
-			}
-		]
-	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "DiceParty",
+		"navigationBarTitleText": "PartyGlass",
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#FFF5F5"
 	},

@@ -9,9 +9,25 @@
 				'<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
 				(coverSupport ? ', viewport-fit=cover' : '') + '" />')
 		</script>
-		<title></title>
+		<title>PartyGlass</title>
 		<!--preload-links-->
 		<!--app-context-->
+
+		<script>
+			// backdrop-filter 兼容性检测
+			(function() {
+				try {
+					var supportsBackdrop = 'backdropFilter' in document.documentElement.style ||
+						'-webkit-backdrop-filter' in document.documentElement.style ||
+						CSS.supports('backdrop-filter', 'blur(1px)');
+					if (!supportsBackdrop) {
+						document.documentElement.classList.add('no-backdropfilter');
+					}
+				} catch(e) {
+					document.documentElement.classList.add('no-backdropfilter');
+				}
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="app"><!--app-html--></div>
