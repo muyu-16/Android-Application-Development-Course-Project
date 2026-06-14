@@ -1,4 +1,4 @@
-﻿﻿<script setup>
+﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useQuestionStore } from '@/stores/questions'
 
@@ -20,7 +20,7 @@ const customInput = ref('')
 // 3D 倾斜
 const tiltX = ref(0)
 const tiltY = ref(0)
-let tiltTimer: ReturnType<typeof requestAnimationFrame> | null = null
+let tiltTimer = null
 
 // 真心话/大冒险回应
 const goodResponses = [

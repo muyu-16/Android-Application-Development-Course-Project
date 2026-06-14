@@ -1,592 +1,229 @@
-﻿<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { gsap } from 'gsap'
-
-// ══════ 骰子配置 ══════
-// 标准骰子：对面点数之和 = 7
+﻿﻿<script>
+// 标准骰子：对面之和=7
 const CUBE_FACES = [
-  { num: 1, transform: 'translateZ(55px)' },
-  { num: 6, transform: 'rotateY(180deg) translateZ(55px)' },
-  { num: 2, transform: 'rotateY(90deg) translateZ(55px)' },
-  { num: 5, transform: 'rotateY(-90deg) translateZ(55px)' },
-  { num: 3, transform: 'rotateX(-90deg) translateZ(55px)' },
-  { num: 4, transform: 'rotateX(90deg) translateZ(55px)' }
+  { num: 1, transform: 'rotateY(0deg) translateZ(60rpx)' },
+  { num: 2, transform: 'rotateX(90deg) translateZ(60rpx)' },
+  { num: 3, transform: 'rotateY(-90deg) translateZ(60rpx)' },
+  { num: 4, transform: 'rotateY(90deg) translateZ(60rpx)' },
+  { num: 5, transform: 'rotateX(-90deg) translateZ(60rpx)' },
+  { num: 6, transform: 'rotateX(180deg) translateZ(60rpx)' }
 ]
-
-// 每个点数对应的终止旋转角（让该面朝前）
-const FACE_FINAL = {
+// 各点数对应的终止旋转
+const FACE_OFFSET = {
   1: { x: 0, y: 0 },
-  2: { x: 0, y: -90 },
-  3: { x: -90, y: 0 },
-  4: { x: 90, y: 0 },
-  5: { x: 0, y: 90 },
+  2: { x: -90, y: 0 },
+  3: { x: 0, y: 90 },
+  4: { x: 0, y: -90 },
+  5: { x: 90, y: 0 },
   6: { x: 180, y: 0 }
 }
-
+// 点数排列坐标（相对于面中心的倍数，乘 28rpx）
 const DOTS = {
-	1: [[0,0]],
-	2: [[-1,-1],[1,1]],
-	3: [[-1,-1],[0,0],[1,1]],
-	4: [[-1,-1],[1,-1],[-1,1],[1,1]],
-	5: [[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],
-	6: [[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]
+  1: [[0,0]],
+  2: [[-1,-1],[1,1]],
+  3: [[-1,-1],[0,0],[1,1]],
+  4: [[-1,-1],[1,-1],[-1,1],[1,1]],
+  5: [[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],
+  6: [[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]
 }
-const MAX_HISTORY = 20
-
-// ══════ 状态 ══════
-const diceCount = ref(1)
-const diceValues = ref([1])
-const diceStyle = ref('frosted')
-const isRolling = ref(false)
-const history = ref([])
-const showCoach = ref(false)
-const tiltX = ref(0)
-const tiltY = ref(0)
-
-// 两层引用：外框（y/scale弹跳） + 内立方体（旋转）
-const diceRefs = ref([])
-const cubeRefs = ref([])
-
-function setDiceRef(el, idx) {
-	if (el) diceRefs.value[idx] = el.$el || el
+export default {
+  data() {
+    return {
+      diceCount: 1,
+      diceValues: [1],
+      rolling: false,
+      history: [],
+      MAX_HISTORY: 20,
+      showCoach: false,
+      tiltX: 0, tiltY: 0,
+      lastX: 0, lastY: 0, lastZ: 0,
+      shakeTimer: null,
+      containerTilt: null,
+      diceTrans: ['none'],
+      diceRotX: [0],
+      diceRotY: [0],
+      diceFlipping: [false],
+      diceBounce: [''],
+    }
+  },
+  mounted() {
+    uni.onAccelerometerChange?.(this.onShake)
+    if (!uni.getStorageSync('coach_dismissed')) this.showCoach = true
+  },
+  beforeDestroy() { uni.offAccelerometerChange?.(this.onShake) },
+  methods: {
+    roll() {
+      if (this.rolling) return
+      this.rolling = true
+      uni.vibrateShort?.({ type: 'medium' })
+      const results = []
+      for (let i = 0; i < this.diceCount; i++) results.push(Math.floor(Math.random() * 6) + 1)
+      for (let i = 0; i < this.diceCount; i++) setTimeout(() => this.rollSingle(i, results[i]), i * 150)
+      setTimeout(() => {
+        this.rolling = false
+        this.diceValues = [...results]
+        for (let i = 0; i < this.diceCount; i++) { this.$set(this.diceFlipping, i, false); this.$set(this.diceBounce, i, '') }
+        const entry = { id: Date.now(), values: [...results], time: new Date().toLocaleTimeString() }
+        this.history.unshift(entry)
+        if (this.history.length > this.MAX_HISTORY) this.history.pop()
+      }, this.diceCount * 150 + 1000)
+    },
+    rollSingle(index, targetValue) {
+      this.$set(this.diceTrans, index, 'none')
+      this.$set(this.diceRotX, index, 0)
+      this.$set(this.diceRotY, index, 0)
+      this.$set(this.diceFlipping, index, true)
+      this.$set(this.diceBounce, index, '')
+      const flipId = setInterval(() => {
+        if (!this.diceFlipping[index]) { clearInterval(flipId); return }
+        this.$set(this.diceValues, index, Math.floor(Math.random() * 6) + 1)
+      }, 80)
+      setTimeout(() => clearInterval(flipId), 1500)
+      this.$nextTick(() => {
+        const spins = 1 + Math.floor(Math.random() * 3)
+        const offset = FACE_OFFSET[targetValue]
+        const endX = spins * 360 + offset.x
+        const endY = spins * 360 + offset.y
+        const duration = 0.6 + Math.random() * 0.3
+        this.$set(this.diceTrans, index, 'transform ' + duration + 's cubic-bezier(0.05, 0.7, 0.1, 1.0)')
+        this.$set(this.diceRotX, index, endX)
+        this.$set(this.diceRotY, index, endY)
+        setTimeout(() => this.$set(this.diceBounce, index, 'bounce-settle 0.3s ease-out 0.05s both'), 30)
+      })
+      uni.vibrateShort?.({ type: 'light' })
+    },
+    onShake(e) {
+      if (this.rolling) return; const { x, y, z } = e
+      if (!this.lastX && !this.lastY && !this.lastZ) {
+        if (!this.shakeTimer) { this.lastX = x; this.lastY = y; this.lastZ = z; this.shakeTimer = setTimeout(() => { this.shakeTimer = null }, 300); return }
+      }
+      if (Math.abs(x - this.lastX) + Math.abs(y - this.lastY) + Math.abs(z - this.lastZ) > 1.5) this.roll()
+      this.lastX = x; this.lastY = y; this.lastZ = z
+    },
+    onTouchStart(e) {
+      if (this.containerTilt) return; const touch = e.touches[0]
+      this.containerTilt = { startX: touch.clientX, startY: touch.clientY }
+    },
+    onTouchMove(e) {
+      if (!this.containerTilt) return; const touch = e.touches[0]; const dx = touch.clientX - this.containerTilt.startX; const dy = touch.clientY - this.containerTilt.startY
+      this.tiltX = Math.max(-15, Math.min(15, dy / 8)); this.tiltY = Math.max(-15, Math.min(15, -dx / 8))
+    },
+    onTouchEnd() { this.containerTilt = null; this.tiltX = 0; this.tiltY = 0 },
+    setCount(n) { if (this.rolling) return; this.diceCount = n; this.diceValues = Array(n).fill(1) },
+    dismissCoach() { this.showCoach = false; uni.setStorageSync('coach_dismissed', true) }
+  }
 }
-function setCubeRef(el, idx) {
-	if (el) cubeRefs.value[idx] = el.$el || el
-}
-
-// 摇一摇
-let lastX = 0, lastY = 0, lastZ = 0
-let shakeTimer = null
-
-// ─── 骰子滚动（两层分离：外框弹跳 + 内立方体单段平滑旋转） ───
-function rollDice() {
-	if (isRolling.value) return
-	isRolling.value = true
-
-	uni.vibrateShort?.({ type: 'medium' })
-
-	const newValues = []
-	for (let i = 0; i < diceCount.value; i++) {
-		newValues.push(Math.floor(Math.random() * 6) + 1)
-	}
-
-	const cubes = cubeRefs.value.slice(0, diceCount.value)
-	const dices = diceRefs.value.slice(0, diceCount.value)
-	if (!cubes.length) {
-		finishRoll(newValues)
-		return
-	}
-
-	cubes.forEach((cube, idx) => {
-		const wrapper = dices[idx]
-		const targetVal = newValues[idx]
-		const final = FACE_FINAL[targetVal]
-		const spins = 3
-
-		// 终点角度 = 额外圈数 + 目标面偏移
-		const endX = spins * 360 + final.x
-		const endY = spins * 360 + final.y
-
-		// 清掉上一次的内联 transform
-		gsap.killTweensOf([wrapper, cube])
-		if (wrapper) gsap.set(wrapper, { y: 0, scale: 1, clearProps: 'transform' })
-		gsap.set(cube, { rotationX: 0, rotationY: 0, clearProps: 'transform' })
-
-		// === 同一 timeline 同时控制外框 + 内立方体 ===
-		const tl = gsap.timeline({
-			delay: idx * 0.15,
-			onComplete: () => {
-				diceValues.value[idx] = targetVal
-				// 锁定最终旋转位姿，防止下一次 clearProps 时闪回
-				gsap.set(cube, { rotationX: endX, rotationY: endY })
-			}
-		})
-
-		if (wrapper) {
-			// 外框：垂直弹跳
-			tl.to(wrapper, { y: -5, scale: 0.92, duration: 0.06, ease: 'power1.out' }, 0)
-			tl.to(wrapper, { y: -68, scale: 0.7, duration: 0.22, ease: 'power3.out' })
-			tl.to(wrapper, { y: 0, scale: 1.12, duration: 0.18, ease: 'power2.in' })
-			tl.to(wrapper, { y: -32, scale: 0.85, duration: 0.12, ease: 'power2.out' })
-			tl.to(wrapper, { y: 0, scale: 1.06, duration: 0.1, ease: 'power1.in' })
-			tl.to(wrapper, { y: -6, scale: 0.95, duration: 0.06, ease: 'power1.out' })
-			tl.to(wrapper, { y: 0, scale: 1, duration: 0.3, ease: 'elastic.out(1.2, 0.3)' })
-		}
-
-		// 内立方体：单段平滑 3D 旋转（在同一 timeline 中）
-		tl.to(cube, {
-			rotationX: endX,
-			rotationY: endY,
-			duration: 0.65,
-			ease: 'power3.inOut'
-		}, 0.04)
-	})
-	})
-
-	const totalDuration = (cubes.length - 1) * 0.15 + 1.1
-	setTimeout(() => finishRoll(newValues), totalDuration * 1000)
-}
-
-function finishRoll(values) {
-	diceValues.value = values
-	isRolling.value = false
-
-	const entry = {
-		id: Date.now(),
-		values: [...values],
-		time: new Date().toLocaleTimeString()
-	}
-	history.value.unshift(entry)
-	if (history.value.length > MAX_HISTORY) history.value.pop()
-}
-
-// ══════ 摇一摇检测 ══════
-function onShake(e) {
-	if (isRolling.value) return
-	const { x, y, z } = e
-	if (!lastX && !lastY && !lastZ) {
-		if (!shakeTimer) {
-			lastX = x; lastY = y; lastZ = z
-			shakeTimer = setTimeout(() => { shakeTimer = null }, 300)
-			return
-		}
-	}
-	const delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ)
-	if (delta > 1.5) {
-		rollDice()
-	}
-	lastX = x; lastY = y; lastZ = z
-}
-
-// ─── 长按倾斜 ───
-let containerTilt = null
-function onTouchStart(e) {
-	if (containerTilt) return
-	const touch = e.touches[0]
-	containerTilt = { startX: touch.clientX, startY: touch.clientY }
-}
-function onTouchMove(e) {
-	if (!containerTilt) return
-	const touch = e.touches[0]
-	const dx = touch.clientX - containerTilt.startX
-	const dy = touch.clientY - containerTilt.startY
-	tiltX.value = Math.max(-15, Math.min(15, dy / 8))
-	tiltY.value = Math.max(-15, Math.min(15, -dx / 8))
-}
-function onTouchEnd() {
-	containerTilt = null
-	tiltX.value = 0
-	tiltY.value = 0
-}
-
-// ─── 骰子数切换 ───
-function setCount(n) {
-	if (isRolling.value) return
-	diceCount.value = n
-	diceValues.value = Array(n).fill(1)
-}
-
-// ─── 样式切换 ───
-function nextStyle() {
-	const styles = ['transparent', 'frosted', 'frosted-black']
-	const idx = (styles.indexOf(diceStyle.value) + 1) % styles.length
-	diceStyle.value = styles[idx]
-}
-
-// ─── 教练引导 ───
-function dismissCoach() {
-	showCoach.value = false
-	uni.setStorageSync('coach_dismissed', true)
-}
-
-onMounted(() => {
-	uni.onAccelerometerChange?.(onShake)
-	if (!uni.getStorageSync('coach_dismissed')) {
-		showCoach.value = true
-	}
-})
-
-onUnmounted(() => {
-	uni.offAccelerometerChange?.(onShake)
-})
 </script>
 
 <template>
-	<view
-		class="container"
-		:style="{ transform: `perspective(600px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)` }"
-		@touchstart="onTouchStart"
-		@touchmove="onTouchMove"
-		@touchend="onTouchEnd"
-	>
-		<!-- ══════ 导航栏 ══════ -->
-		<view class="nav-bar">
-			<view class="nav-left">
-				<text class="material-icons nav-back" @tap="uni.navigateBack()">arrow_back</text>
-				<text class="nav-title">骰子</text>
-			</view>
-			<view class="nav-right">
-				<view class="seg-control">
-					<view
-						v-for="n in [1,2,3]"
-						:key="n"
-						class="seg-item"
-						:class="{ active: diceCount === n }"
-						@tap="setCount(n)"
-					>
-						<text>{{ n }}</text>
-					</view>
-				</view>
-				<view class="style-btn" @tap="nextStyle">
-					<text class="material-icons">palette</text>
-				</view>
-			</view>
-		</view>
-
-		<!-- ══════ 3D 骰子区 ══════ -->
-		<view
-			class="dice-area"
-			:style="{ transform: tiltX !== 0 ? 'perspective(600px)' : '' }"
-		>
-			<view
-				v-for="(val, idx) in diceValues"
-				:key="idx"
-				:ref="(el) => setDiceRef(el, idx)"
-				class="dice"
-				:style="{
-					zIndex: diceValues.length - idx,
-					marginTop: idx > 0 ? '24px' : '0'
-				}"
-				@tap="rollDice"
-			>
-				<!-- 3D 立方体 -->
-				<view
-					:ref="(el) => setCubeRef(el, idx)"
-					class="dice-cube"
-					:class="diceStyle"
-				>
-					<view
-						v-for="(face, fi) in CUBE_FACES"
-						:key="fi"
-						class="dice-face"
-						:class="'face-' + (fi + 1)"
-						:style="{ transform: face.transform }"
-					>
-						<view
-							v-for="(pos, pi) in DOTS[face.num]"
-							:key="pi"
-							class="dice-dot"
-							:style="{
-								left: `calc(50% + ${pos[0]} * 18px)`,
-								top: `calc(50% + ${pos[1]} * 18px)`
-							}"
-						></view>
-					</view>
-				</view>
-				<!-- 阴影投影 -->
-				<view class="dice-shadow"></view>
-			</view>
-		</view>
-
-		<!-- ══════ 历史记录 ══════ -->
-		<view class="history-wrap" v-if="history.length > 0">
-			<view class="history-hint">
-				<text class="history-hint-text">投掷记录</text>
-			</view>
-			<scroll-view class="history-scroll" scroll-x>
-				<view
-					v-for="(h, i) in history"
-					:key="h.id"
-					class="history-chip"
-					:class="{ faded: i >= 5 }"
-				>
-					<text class="material-icons history-icon">casino</text>
-					<text class="history-text">{{ h.values.join(',') }}</text>
-				</view>
-			</scroll-view>
-		</view>
-
-		<!-- ══════ 教练引导 ══════ -->
-		<view class="coach-mask" v-if="showCoach" @tap="dismissCoach">
-			<view class="coach-content">
-				<view class="coach-arrow"></view>
-				<view class="coach-bubble">
-					<text class="coach-title">点击骰子开始</text>
-					<text class="coach-desc">摇动手机也能触发哦~</text>
-					<view class="coach-btn" @tap.stop="dismissCoach">
-						<text>知道了</text>
-					</view>
-				</view>
-			</view>
-		</view>
-	</view>
+  <view class="container" :style="{ transform: 'perspective(600px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg)' }"
+    @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
+    <view class="nav-bar">
+      <view class="nav-left"><text class="material-icons nav-back" @tap="uni.navigateBack()">arrow_back</text><text class="nav-title">骰子</text></view>
+      <view class="nav-right">
+        <view class="seg-control">
+          <view v-for="n in [1,2,3]" :key="n" class="seg-item" :class="{ active: diceCount === n }" @tap="setCount(n)"><text>{{ n }}</text></view>
+        </view>
+      </view>
+    </view>
+    <view class="dice-area">
+      <view v-for="(val, idx) in diceValues" :key="idx" class="dice"
+        :style="{ zIndex: diceValues.length - idx, marginTop: idx > 0 ? '28rpx' : '0', animation: diceBounce[idx] }" @tap="roll">
+        <view class="dice-cube" :style="{ transform: 'rotateX(' + diceRotX[idx] + 'deg) rotateY(' + diceRotY[idx] + 'deg)', transition: diceTrans[idx] }">
+          <view v-for="(face, fi) in CUBE_FACES" :key="fi" class="dice-face" :style="{ transform: face.transform }">
+            <view v-for="(pos, pi) in DOTS[face.num]" :key="pi" class="dice-dot"
+              :style="{ left: 'calc(50% + ' + pos[0] * 28 + 'rpx)', top: 'calc(50% + ' + pos[1] * 28 + 'rpx)' }"></view>
+          </view>
+          <view class="dice-flip-overlay" v-if="diceFlipping[idx]">
+            <text class="dice-flip-num">{{ diceValues[idx] }}</text>
+          </view>
+        </view>
+        <view class="dice-shadow"></view>
+      </view>
+    </view>
+    <view class="history-wrap" v-if="history.length > 0">
+      <view class="history-hint"><text class="history-hint-text">投掷记录</text></view>
+      <scroll-view class="history-scroll" scroll-x>
+        <view v-for="(h, i) in history" :key="h.id" class="history-chip" :class="{ faded: i >= 5 }">
+          <text class="material-icons history-icon">casino</text><text class="history-text">{{ h.values.join(',') }}</text>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="coach-mask" v-if="showCoach" @tap="dismissCoach">
+      <view class="coach-content"><view class="coach-arrow"></view><view class="coach-bubble"><text class="coach-title">点击骰子开始</text><text class="coach-desc">摇动手机也能触发哦~</text><view class="coach-btn" @tap.stop="dismissCoach"><text>知道了</text></view></view></view>
+    </view>
+  </view>
 </template>
 
 <style scoped>
-/* ══════ 容器 ══════ */
-.container {
-	min-height: 100vh;
-	background: #141218;
-	padding: 16px;
-	padding-top: calc(var(--safe-area-top) + 12px);
-	padding-bottom: calc(var(--safe-area-bottom) + 24px);
-	display: flex;
-	flex-direction: column;
-	transition: transform 0.05s;
-}
-
-/* ══════ 导航栏 ══════ */
-.nav-bar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 24px;
-}
+.container { min-height: 100vh; background: #1a1a2e; padding: 16px; padding-top: calc(var(--safe-area-top) + 12px); padding-bottom: calc(var(--safe-area-bottom) + 24px); display: flex; flex-direction: column; transition: transform 0.05s; }
+.nav-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .nav-left { display: flex; align-items: center; gap: 12px; }
-.nav-back {
-	font-size: 22px;
-	color: var(--clr-text-primary);
-	padding: 4px;
-}
-.nav-title {
-	font-size: 22px;
-	font-weight: 700;
-	color: var(--clr-text-primary);
-}
+.nav-back { font-size: 22px; color: #F5EFF7; padding: 4px; }
+.nav-title { font-size: 22px; font-weight: 700; color: #F5EFF7; }
 .nav-right { display: flex; align-items: center; gap: 8px; }
+.seg-control { display: flex; background: rgba(255,255,255,0.08); border-radius: 20px; padding: 3px; gap: 2px; }
+.seg-item { width: 36px; padding: 6px 0; text-align: center; border-radius: 999px; transition: all 0.25s; }
+.seg-item text { font-size: 14px; font-weight: 600; color: #CAC4D0; }
+.seg-item.active { background: rgba(255,255,255,0.15); }
+.seg-item.active text { color: #F5EFF7; }
 
-.seg-control {
-	display: flex;
-	background: rgba(255,255,255,0.08);
-	border-radius: 20px;
-	padding: 3px;
-	gap: 2px;
-}
-.seg-item {
-	width: 36px;
-	padding: 6px 0;
-	text-align: center;
-	border-radius: 999px;
-	transition: all 0.25s;
-}
-.seg-item text {
-	font-size: 14px;
-	font-weight: 600;
-	color: var(--clr-text-secondary);
-}
-.seg-item.active {
-	background: var(--clr-bg-secondary);
-}
-.seg-item.active text {
-	color: var(--clr-text-primary);
-}
+.dice-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 0; }
 
-.style-btn {
-	width: 36px;
-	height: 36px;
-	border-radius: 50%;
-	background: rgba(255,255,255,0.08);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-.style-btn .material-icons {
-	font-size: 18px;
-	color: var(--clr-text-secondary);
-}
+/* ─── 骰子 120×120rpx ─── */
+.dice { position: relative; width: 120rpx; height: 120rpx; perspective: 1000rpx; cursor: pointer; }
 
-/* ══════ 3D 骰子区 ══════ */
-.dice-area {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	padding: 24px 0;
-}
+/* 3D 立方体 */
+.dice-cube { width: 120rpx; height: 120rpx; position: relative; transform-style: preserve-3d; will-change: transform; }
 
-.dice {
-	position: relative;
-	width: 110px;
-	height: 110px;
-	perspective: 900px;
-	cursor: pointer;
-	will-change: transform;
-}
-
-/* ─── 3D 立方体容器 ─── */
-.dice-cube {
-	width: 110px;
-	height: 110px;
-	position: relative;
-	transform-style: preserve-3d;
-	will-change: transform;
-}
-
-/* ─── 6 个面 ─── */
+/* 6 个面 — 纯白磨砂 #F5F5F7 */
 .dice-face {
-	position: absolute;
-	width: 110px;
-	height: 110px;
-	border-radius: 16px;
-	backface-visibility: hidden;
-	-webkit-backface-visibility: hidden;
-	overflow: hidden;
+  position: absolute; width: 120rpx; height: 120rpx; border-radius: 20rpx;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: #F5F5F7;
+  border: 1rpx solid #E0E0E0;
+  box-shadow:
+    inset 0 1rpx 0 rgba(255,255,255,1),
+    inset 0 -1rpx 0 rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
-/* 磨砂白（默认） */
-.dice-cube.frosted .dice-face,
-.dice-face {
-	background: linear-gradient(145deg, rgba(255,255,255,0.40), rgba(255,255,255,0.12));
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	border: 1px solid rgba(255,255,255,0.28);
-	box-shadow:
-		inset 0 1px 0 rgba(255,255,255,0.40),
-		inset 0 -1px 0 rgba(0,0,0,0.06);
-}
-
-/* 透明 */
-.dice-cube.transparent .dice-face {
-	background: linear-gradient(145deg, rgba(255,255,255,0.20), rgba(255,255,255,0.04));
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-	border: 1px solid rgba(255,255,255,0.12);
-	box-shadow: none;
-}
-
-/* 磨砂黑 */
-.dice-cube.frosted-black .dice-face {
-	background: linear-gradient(145deg, rgba(0,0,0,0.35), rgba(0,0,0,0.12));
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	border: 1px solid rgba(255,255,255,0.08);
-	box-shadow:
-		inset 0 1px 0 rgba(255,255,255,0.10),
-		inset 0 -1px 0 rgba(0,0,0,0.15);
-}
-
-/* ─── 点数 ─── */
+/* 点数 — 纯黑 #1C1B1F */
 .dice-dot {
-	position: absolute;
-	width: 5px;
-	height: 5px;
-	border-radius: 50%;
-	background: var(--clr-text-primary);
-	box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-	transform: translate(-50%, -50%);
+  position: absolute; width: 16rpx; height: 16rpx; border-radius: 50%;
+  background: #1C1B1F;
+  transform: translate(-50%, -50%);
 }
 
-.dice-cube.transparent .dice-dot {
-	background: var(--clr-text-primary);
-}
-
-.dice-cube.frosted-black .dice-dot {
-	background: rgba(255,255,255,0.85);
-}
-
-/* ─── 阴影 ─── */
+/* 地面阴影 */
 .dice-shadow {
-	position: absolute;
-	bottom: -8px;
-	left: 5%;
-	right: 5%;
-	height: 16px;
-	background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 70%);
-	z-index: -1;
-	pointer-events: none;
+  position: absolute; bottom: -12rpx; left: 10%; right: 10%; height: 20rpx;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.30) 0%, transparent 100%);
+  filter: blur(8rpx); z-index: -1; pointer-events: none;
 }
 
-/* ══════ 历史记录 ══════ */
-.history-wrap {
-	margin-top: 8px;
-}
-.history-hint {
-	margin-bottom: 8px;
-}
-.history-hint-text {
-	font-size: 12px;
-	color: var(--clr-text-secondary);
-	font-weight: 600;
-}
-.history-scroll {
-	display: flex;
-	flex-direction: row;
-	white-space: nowrap;
-	overflow-x: auto;
-}
-.history-chip {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	background: rgba(255,255,255,0.08);
-	border-radius: 999px;
-	padding: 6px 14px;
-	margin-right: 8px;
-	transition: opacity 0.3s;
-}
-.history-chip.faded { opacity: 0.3; }
-.history-icon { font-size: 14px; }
-.history-text {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--clr-text-primary);
-}
+/* 翻面数字 */
+.dice-flip-overlay { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.dice-flip-num { font-size: 52rpx; font-weight: 900; color: #1C1B1F; text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.15); animation: flip-pop 0.15s ease-out; }
+@keyframes flip-pop { 0%{transform:scale(0.8);opacity:0.5} 100%{transform:scale(1);opacity:1} }
 
-/* ══════ 教练引导 ══════ */
-.coach-mask {
-	position: fixed;
-	inset: 0;
-	background: rgba(0,0,0,0.3);
-	z-index: 100;
-	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-	padding-bottom: 120px;
-}
-.coach-content {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
-.coach-arrow {
-	width: 0; height: 0;
-	border-left: 10px solid transparent;
-	border-right: 10px solid transparent;
-	border-bottom: 10px solid rgba(255,255,255,0.12);
-}
-.coach-bubble {
-	background: rgba(255,255,255,0.12);
-	backdrop-filter: blur(24px);
-	-webkit-backdrop-filter: blur(24px);
-	border: 1px solid rgba(255,255,255,0.15);
-	border-radius: 16px;
-	padding: 16px 24px;
-	text-align: center;
-}
-.coach-title {
-	font-size: 16px;
-	font-weight: 700;
-	color: var(--clr-text-primary);
-	display: block;
-	margin-bottom: 4px;
-}
-.coach-desc {
-	font-size: 13px;
-	color: var(--clr-text-secondary);
-	display: block;
-	margin-bottom: 8px;
-}
-.coach-btn {
-	padding: 8px 20px;
-	border-radius: 999px;
-	background: var(--clr-accent);
-	display: inline-block;
-}
-.coach-btn text {
-	font-size: 14px;
-	font-weight: 600;
-	color: var(--clr-accent-on);
-}
+/* 落地弹跳 */
+@keyframes bounce-settle { 0%{transform:translateY(0)} 30%{transform:translateY(-20px)} 60%{transform:translateY(0)} 75%{transform:translateY(-8px)} 100%{transform:translateY(0)} }
+
+.history-wrap { margin-top: 8px; }
+.history-hint { margin-bottom: 8px; }
+.history-hint-text { font-size: 12px; color: #CAC4D0; font-weight: 600; }
+.history-scroll { display: flex; flex-direction: row; white-space: nowrap; overflow-x: auto; }
+.history-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 6px 14px; margin-right: 8px; }
+.history-icon { font-size: 14px; color: #CAC4D0; }
+.history-text { font-size: 12px; font-weight: 600; color: #F5EFF7; }
+
+.coach-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 100; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 120px; }
+.coach-content { position: relative; display: flex; flex-direction: column; align-items: center; }
+.coach-arrow { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid rgba(255,255,255,0.12); }
+.coach-bubble { background: rgba(255,255,255,0.12); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 16px 24px; text-align: center; }
+.coach-title { font-size: 16px; font-weight: 700; color: #F5EFF7; display: block; margin-bottom: 4px; }
+.coach-desc { font-size: 13px; color: #CAC4D0; display: block; margin-bottom: 8px; }
+.coach-btn { padding: 8px 20px; border-radius: 999px; background: #6750A4; display: inline-block; }
+.coach-btn text { font-size: 14px; font-weight: 600; color: #FFFFFF; }
 </style>

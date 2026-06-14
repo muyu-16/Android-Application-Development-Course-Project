@@ -72,6 +72,90 @@
       "sourceType": "local",
       "skillPath": ".agents/skills/mobile-ui-readability/SKILL.md",
       "computedHash": "custom"
+    },
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/brainstorming/SKILL.md",
+      "computedHash": "custom"
+    },
+    "writing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/writing-plans/SKILL.md",
+      "computedHash": "custom"
+    },
+    "executing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/executing-plans/SKILL.md",
+      "computedHash": "custom"
+    },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/subagent-driven-development/SKILL.md",
+      "computedHash": "custom"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/systematic-debugging/SKILL.md",
+      "computedHash": "custom"
+    },
+    "requesting-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/requesting-code-review/SKILL.md",
+      "computedHash": "custom"
+    },
+    "verification-before-completion": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/verification-before-completion/SKILL.md",
+      "computedHash": "custom"
+    },
+    "dispatching-parallel-agents": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/dispatching-parallel-agents/SKILL.md",
+      "computedHash": "custom"
+    },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/test-driven-development/SKILL.md",
+      "computedHash": "custom"
+    },
+    "finishing-a-development-branch": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/finishing-a-development-branch/SKILL.md",
+      "computedHash": "custom"
+    },
+    "using-git-worktrees": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/using-git-worktrees/SKILL.md",
+      "computedHash": "custom"
+    },
+    "using-superpowers": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/using-superpowers/SKILL.md",
+      "computedHash": "custom"
+    },
+    "receiving-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/receiving-code-review/SKILL.md",
+      "computedHash": "custom"
+    },
+    "writing-skills": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/writing-skills/SKILL.md",
+      "computedHash": "custom"
     }
   }
 }

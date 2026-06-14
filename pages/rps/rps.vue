@@ -1,4 +1,4 @@
-﻿﻿<script setup>
+﻿﻿﻿﻿﻿<script setup>
 import { ref, computed } from 'vue'
 
 // 回合规则
