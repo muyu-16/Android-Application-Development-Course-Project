@@ -1,0 +1,12 @@
+{
+	"name": "partyglass",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "uni-app",
+		"build": "uni-app build"
+	},
+	"dependencies": {
+		"gsap": "^3.15.0"
+	}
+}

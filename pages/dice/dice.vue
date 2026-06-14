@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import type { Ref } from 'vue'
+import { gsap } from 'gsap'
 
 // ══════ 骰子配置 ══════
 const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅']
@@ -17,48 +17,121 @@ const MAX_HISTORY = 20
 // ══════ 状态 ══════
 const diceCount = ref(1)
 const diceValues = ref([1])
-const diceStyle = ref('frosted') // 'transparent' | 'frosted' | 'frosted-black'
+const diceStyle = ref('frosted')
 const isRolling = ref(false)
-const history: Ref<Array<{id: number, values: number[], time: string}>> = ref([])
+const history = ref([])
 const showCoach = ref(false)
 const tiltX = ref(0)
 const tiltY = ref(0)
 
-// 摇一摇
-let lastShake = 0
-let lastX = 0, lastY = 0, lastZ = 0
-let shakeTimer: ReturnType<typeof setTimeout> | null = null
+// GSAP context — 用于组件销毁时清理
+let gsapCtx = null
+const diceAreaRef = ref(null)
 
-// ─── 骰子滚动 ───
+// 摇一摇
+let lastX = 0, lastY = 0, lastZ = 0
+let shakeTimer = null
+
+// ─── 骰子滚动（GSAP） ───
 function rollDice() {
 	if (isRolling.value) return
 	isRolling.value = true
 
 	uni.vibrateShort?.({ type: 'medium' })
 
-	const newValues: number[] = []
+	const newValues = []
 	for (let i = 0; i < diceCount.value; i++) {
 		newValues.push(Math.floor(Math.random() * 6) + 1)
 	}
 
-	// 给每个骰子不同的延迟，模拟依次落地
-	newValues.forEach((val, idx) => {
-		setTimeout(() => {
-			diceValues.value[idx] = val
-		}, idx * 200)
+	// 用 GSAP 操作骰子 DOM 元素
+	const diceEls = diceAreaRef.value?.querySelectorAll('.dice')
+	if (!diceEls || diceEls.length === 0) {
+		// fallback：直接更新值
+		finishRoll(newValues)
+		return
+	}
+
+	// 每个骰子独立 GSAP 动画
+	diceEls.forEach((el, idx) => {
+		// 初始：清掉 inline transform
+		gsap.set(el, { clearProps: 'transform' })
+
+		const tl = gsap.timeline({
+			delay: idx * 0.12,  // 依次触发
+			onComplete: () => {
+				// 更新该骰子的点数
+				diceValues.value[idx] = newValues[idx]
+				// 弹性归位
+				gsap.to(el, {
+					scale: 1,
+					rotation: 0,
+					rotationX: 0,
+					rotationY: 0,
+					duration: 0.5,
+					ease: 'elastic.out(1, 0.3)',
+					clearProps: 'transform'
+				})
+			}
+		})
+
+		// Step 1: 预备 — 轻微抬起 + 缩小
+		tl.to(el, {
+			y: -8,
+			scale: 0.85,
+			duration: 0.12,
+			ease: 'power2.out'
+		})
+
+		// Step 2: 快速旋转 tumble（连续旋转多圈）
+		tl.to(el, {
+			rotation: 360 * 3,      // 3 圈
+			rotationX: 360 * 2,
+			rotationY: 360 * 2,
+			scale: 0.75,
+			duration: 0.5,
+			ease: 'power4.in'
+		})
+
+		// Step 3: 开始下落 + 减速
+		tl.to(el, {
+			y: 0,
+			scale: 1.08,
+			duration: 0.25,
+			ease: 'power1.out'
+		})
+
+		// Step 4: 轻微过冲回弹
+		tl.to(el, {
+			scale: 0.98,
+			duration: 0.08,
+			ease: 'power2.out'
+		})
+
+		// Step 5: 回正
+		tl.to(el, {
+			scale: 1,
+			duration: 0.12,
+			ease: 'power2.out'
+		})
 	})
 
-	setTimeout(() => {
-		isRolling.value = false
-		diceValues.value = newValues
-		const entry = {
-			id: Date.now(),
-			values: [...newValues],
-			time: new Date().toLocaleTimeString()
-		}
-		history.value.unshift(entry)
-		if (history.value.length > MAX_HISTORY) history.value.pop()
-	}, 200)
+	// 总结束时间 = 最多骰子延迟 + 动画总时长
+	const totalDuration = (diceEls.length - 1) * 0.12 + 1.2
+	setTimeout(() => finishRoll(newValues), totalDuration * 1000)
+}
+
+function finishRoll(values) {
+	diceValues.value = values
+	isRolling.value = false
+
+	const entry = {
+		id: Date.now(),
+		values: [...values],
+		time: new Date().toLocaleTimeString()
+	}
+	history.value.unshift(entry)
+	if (history.value.length > MAX_HISTORY) history.value.pop()
 }
 
 // ══════ 摇一摇检测 ══════
@@ -129,6 +202,7 @@ onMounted(() => {
 
 onUnmounted(() => {
 	uni.offAccelerometerChange?.(onShake)
+	if (gsapCtx) gsapCtx.revert()
 })
 </script>
 
@@ -165,7 +239,11 @@ onUnmounted(() => {
 		</view>
 
 		<!-- ══════ 骰子区 ══════ -->
-		<view class="dice-area" :style="{ transform: tiltX !== 0 ? 'perspective(600px)' : '' }">
+		<view
+			ref="diceAreaRef"
+			class="dice-area"
+			:style="{ transform: tiltX !== 0 ? 'perspective(600px)' : '' }"
+		>
 			<view
 				v-for="(val, idx) in diceValues"
 				:key="idx"
@@ -173,13 +251,11 @@ onUnmounted(() => {
 				:class="[
 					diceStyle === 'transparent' ? 'dice-transparent' : '',
 					diceStyle === 'frosted' ? 'dice-frosted' : '',
-					diceStyle === 'frosted-black' ? 'dice-frosted-black' : '',
-					isRolling ? 'rolling' : ''
+					diceStyle === 'frosted-black' ? 'dice-frosted-black' : ''
 				]"
 				:style="{
 					zIndex: diceValues.length - idx,
-					marginTop: idx > 0 ? '20px' : '0',
-					animationDelay: idx * 0.1 + 's'
+					marginTop: idx > 0 ? '20px' : '0'
 				}"
 				@tap="rollDice"
 			>
@@ -318,7 +394,7 @@ onUnmounted(() => {
 	height: 110px;
 	border-radius: 24px;
 	cursor: pointer;
-	transition: transform 0.3s;
+	will-change: transform;
 }
 
 /* 透明样式 */
@@ -373,18 +449,6 @@ onUnmounted(() => {
 	mask-image: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
 	-webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
 	pointer-events: none;
-}
-
-/* 滚动动画 */
-.dice.rolling {
-	animation: dice-roll-3d 1.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-@keyframes dice-roll-3d {
-	0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-	25% { transform: rotateX(180deg) rotateY(90deg) rotateZ(360deg); }
-	50% { transform: rotateX(360deg) rotateY(270deg) rotateZ(720deg); }
-	75% { transform: rotateX(540deg) rotateY(360deg) rotateZ(900deg); }
-	100% { transform: rotateX(720deg) rotateY(720deg) rotateZ(1080deg) scale(1); }
 }
 
 /* ══════ 历史记录 ══════ */

@@ -1,8 +1,15 @@
 {
-  "hash": "c39c52fb",
+  "hash": "ec831b4e",
   "configHash": "82d0379f",
-  "lockfileHash": "e3b0c442",
-  "browserHash": "d6be8ebc",
-  "optimized": {},
+  "lockfileHash": "735f8729",
+  "browserHash": "bcff8462",
+  "optimized": {
+    "gsap": {
+      "src": "../../../../../node_modules/gsap/index.js",
+      "file": "gsap.js",
+      "fileHash": "d5521845",
+      "needsInterop": false
+    }
+  },
   "chunks": {}
 }

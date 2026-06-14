@@ -1,4 +1,4 @@
-﻿<script setup>
+﻿﻿<script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useQuestionStore } from '@/stores/questions'
 

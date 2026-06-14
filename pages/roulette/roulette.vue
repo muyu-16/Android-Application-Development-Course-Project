@@ -1,4 +1,4 @@
-﻿<script setup>
+﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouletteStore, SECTOR_COLORS } from '@/stores/roulette'
 
