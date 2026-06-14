@@ -36,7 +36,10 @@ function setDiceRef(el, idx) {
 let lastX = 0, lastY = 0, lastZ = 0
 let shakeTimer = null
 
-// ─── 骰子滚动（GSAP） ───
+// ─── 骰子滚动（GSAP 拟真翻动） ───
+const ROLL_HEIGHTS = [50, 65, 45]  // 不同弹跳高度 px
+const BOUNCE_DAMP = [0.6, 0.35, 0.15] // 弹跳衰减
+
 function rollDice() {
 	if (isRolling.value) return
 	isRolling.value = true
@@ -48,80 +51,153 @@ function rollDice() {
 		newValues.push(Math.floor(Math.random() * 6) + 1)
 	}
 
-	// 用 GSAP 操作骰子 DOM 元素
 	const els = diceRefs.value.slice(0, diceCount.value)
 	if (!els.length) {
-		// fallback：直接更新值
 		finishRoll(newValues)
 		return
 	}
 
-	// 每个骰子独立 GSAP 动画
+	// 每个骰子独立 GSAP 动画，依次延迟
 	els.forEach((el, idx) => {
-		// 初始：清掉 inline transform
 		gsap.set(el, { clearProps: 'transform' })
 
+		// 视觉翻面：滚动过程中快速切换显示值
+		const flipInterval = setInterval(() => {
+			if (isRolling.value) {
+				diceValues.value[idx] = Math.floor(Math.random() * 6) + 1
+			}
+		}, 80)
+
 		const tl = gsap.timeline({
-			delay: idx * 0.12,  // 依次触发
+			delay: idx * 0.15,
+			defaults: { ease: 'power2.inOut', overwrite: 'auto' },
 			onComplete: () => {
-				// 更新该骰子的点数
+				clearInterval(flipInterval)
+				// 最终值 + 弹性归位
 				diceValues.value[idx] = newValues[idx]
-				// 弹性归位
 				gsap.to(el, {
 					scale: 1,
 					rotation: 0,
 					rotationX: 0,
 					rotationY: 0,
-					duration: 0.5,
-					ease: 'elastic.out(1, 0.3)',
+					y: 0,
+					duration: 0.6,
+					ease: 'elastic.out(1.2, 0.25)',
 					clearProps: 'transform'
 				})
 			}
 		})
 
-		// Step 1: 预备 — 轻微抬起 + 缩小
+		// Step 1: 抓起 — 向上提起 + 缩小蓄力
 		tl.to(el, {
-			y: -8,
-			scale: 0.85,
+			y: -12,
+			scale: 0.82,
+			rotation: -5,
+			duration: 0.1,
+			ease: 'power1.out'
+		}, 0)
+
+		// Step 2: 抛向空中 — 急速上升 + 开始3D翻转
+		tl.to(el, {
+			y: -ROLL_HEIGHTS[0] * 1.2,
+			scale: 0.7,
+			rotation: 180,
+			rotationX: 360,
+			rotationY: 180,
+			duration: 0.25,
+			ease: 'power3.out'
+		})
+
+		// Step 3: 空中顶点 — 旋转继续，速度减慢（势能转动能）
+		tl.to(el, {
+			rotation: 540,
+			rotationX: 720,
+			rotationY: 540,
+			scale: 0.65,
+			duration: 0.2,
+			ease: 'none'
+		})
+
+		// Step 4: 第一次落地 — 快速下落 + 触地弹起
+		tl.to(el, {
+			y: -ROLL_HEIGHTS[1],
+			rotation: 720,
+			rotationX: 1080,
+			rotationY: 900,
+			scale: BOUNCE_DAMP[0] + 0.3,
+			duration: 0.18,
+			ease: 'power2.in'
+		})
+
+		// Step 5: 第一次弹跳 — 弹起 + 旋转减速
+		tl.to(el, {
+			y: -ROLL_HEIGHTS[2],
+			rotation: 810,
+			rotationX: 1170,
+			rotationY: 990,
+			scale: BOUNCE_DAMP[0],
 			duration: 0.12,
 			ease: 'power2.out'
 		})
 
-		// Step 2: 快速旋转 tumble（连续旋转多圈）
+		// Step 6: 第二次触地 — 更小弹跳
 		tl.to(el, {
-			rotation: 360 * 3,      // 3 圈
-			rotationX: 360 * 2,
-			rotationY: 360 * 2,
-			scale: 0.75,
-			duration: 0.5,
-			ease: 'power4.in'
+			y: -6,
+			rotation: 855,
+			rotationX: 1215,
+			rotationY: 1035,
+			scale: BOUNCE_DAMP[1] + 0.15,
+			duration: 0.1,
+			ease: 'power2.in'
 		})
 
-		// Step 3: 开始下落 + 减速
+		// Step 7: 第二次弹跳 — 微弹
 		tl.to(el, {
-			y: 0,
-			scale: 1.08,
-			duration: 0.25,
-			ease: 'power1.out'
-		})
-
-		// Step 4: 轻微过冲回弹
-		tl.to(el, {
-			scale: 0.98,
+			y: -3,
+			rotation: 873,
+			rotationX: 1233,
+			rotationY: 1047,
+			scale: BOUNCE_DAMP[1],
 			duration: 0.08,
 			ease: 'power2.out'
 		})
 
-		// Step 5: 回正
+		// Step 8: 第三次触地 — 几乎静止
 		tl.to(el, {
-			scale: 1,
-			duration: 0.12,
-			ease: 'power2.out'
+			y: 0,
+			rotation: 882,
+			rotationX: 1242,
+			rotationY: 1056,
+			scale: BOUNCE_DAMP[2] + 0.08,
+			duration: 0.06,
+			ease: 'power1.in'
+		})
+
+		// Step 9: 小弹 + 前倾
+		tl.to(el, {
+			y: -1,
+			rotation: 888,
+			rotationX: 1248,
+			rotationY: 1062,
+			scale: BOUNCE_DAMP[2],
+			duration: 0.05,
+			ease: 'power1.out'
+		})
+
+		// Step 10: 最后晃动 — 到正位 + 轻微超调
+		tl.to(el, {
+			y: 0,
+			rotation: 900,
+			rotationX: 1260,
+			rotationY: 1080,
+			scale: 1.03,
+			duration: 0.06,
+			ease: 'power2.in'
 		})
 	})
 
-	// 总结束时间 = 最多骰子延迟 + 动画总时长
-	const totalDuration = (els.length - 1) * 0.12 + 1.2
+	// 总时长 = 最后骰子延迟 + 动画时长
+	const totalDuration = (els.length - 1) * 0.15 + 1.35
 	setTimeout(() => finishRoll(newValues), totalDuration * 1000)
 }
 
