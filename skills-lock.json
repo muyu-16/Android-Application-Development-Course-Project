@@ -60,6 +60,18 @@
       "sourceType": "github",
       "skillPath": "skills/vue-best-practices/SKILL.md",
       "computedHash": "21132f6c11c765bd11d0d6ad081122dd858630073e2123b651e58f17b399b131"
+    },
+    "uni-app-glass-ui": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/uni-app-glass-ui/SKILL.md",
+      "computedHash": "custom"
+    },
+    "mobile-ui-readability": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/mobile-ui-readability/SKILL.md",
+      "computedHash": "custom"
     }
   }
 }

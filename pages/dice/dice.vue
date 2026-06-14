@@ -26,7 +26,11 @@ const tiltY = ref(0)
 
 // GSAP context — 用于组件销毁时清理
 let gsapCtx = null
-const diceAreaRef = ref(null)
+const diceRefs = ref([])
+
+function setDiceRef(el, idx) {
+	if (el) diceRefs.value[idx] = el.$el || el
+}
 
 // 摇一摇
 let lastX = 0, lastY = 0, lastZ = 0
@@ -45,15 +49,15 @@ function rollDice() {
 	}
 
 	// 用 GSAP 操作骰子 DOM 元素
-	const diceEls = diceAreaRef.value?.querySelectorAll('.dice')
-	if (!diceEls || diceEls.length === 0) {
+	const els = diceRefs.value.slice(0, diceCount.value)
+	if (!els.length) {
 		// fallback：直接更新值
 		finishRoll(newValues)
 		return
 	}
 
 	// 每个骰子独立 GSAP 动画
-	diceEls.forEach((el, idx) => {
+	els.forEach((el, idx) => {
 		// 初始：清掉 inline transform
 		gsap.set(el, { clearProps: 'transform' })
 
@@ -117,7 +121,7 @@ function rollDice() {
 	})
 
 	// 总结束时间 = 最多骰子延迟 + 动画总时长
-	const totalDuration = (diceEls.length - 1) * 0.12 + 1.2
+	const totalDuration = (els.length - 1) * 0.12 + 1.2
 	setTimeout(() => finishRoll(newValues), totalDuration * 1000)
 }
 
@@ -240,13 +244,13 @@ onUnmounted(() => {
 
 		<!-- ══════ 骰子区 ══════ -->
 		<view
-			ref="diceAreaRef"
 			class="dice-area"
 			:style="{ transform: tiltX !== 0 ? 'perspective(600px)' : '' }"
 		>
 			<view
 				v-for="(val, idx) in diceValues"
 				:key="idx"
+				:ref="(el) => setDiceRef(el, idx)"
 				class="dice"
 				:class="[
 					diceStyle === 'transparent' ? 'dice-transparent' : '',
