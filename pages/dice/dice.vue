@@ -3,7 +3,26 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 
 // ══════ 骰子配置 ══════
-const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅']
+// 标准骰子：对面点数之和 = 7
+const CUBE_FACES = [
+  { num: 1, transform: 'translateZ(55px)' },
+  { num: 6, transform: 'rotateY(180deg) translateZ(55px)' },
+  { num: 2, transform: 'rotateY(90deg) translateZ(55px)' },
+  { num: 5, transform: 'rotateY(-90deg) translateZ(55px)' },
+  { num: 3, transform: 'rotateX(-90deg) translateZ(55px)' },
+  { num: 4, transform: 'rotateX(90deg) translateZ(55px)' }
+]
+
+// 每个点数对应的终止旋转角（让该面朝前）
+const FACE_FINAL = {
+  1: { x: 0, y: 0 },
+  2: { x: 0, y: -90 },
+  3: { x: -90, y: 0 },
+  4: { x: 90, y: 0 },
+  5: { x: 0, y: 90 },
+  6: { x: 180, y: 0 }
+}
+
 const DOTS = {
 	1: [[0,0]],
 	2: [[-1,-1],[1,1]],
@@ -24,22 +43,17 @@ const showCoach = ref(false)
 const tiltX = ref(0)
 const tiltY = ref(0)
 
-// GSAP context — 用于组件销毁时清理
-let gsapCtx = null
-const diceRefs = ref([])
+const cubeRefs = ref([])
 
-function setDiceRef(el, idx) {
-	if (el) diceRefs.value[idx] = el.$el || el
+function setCubeRef(el, idx) {
+	if (el) cubeRefs.value[idx] = el.$el || el
 }
 
 // 摇一摇
 let lastX = 0, lastY = 0, lastZ = 0
 let shakeTimer = null
 
-// ─── 骰子滚动（GSAP 拟真翻动） ───
-const ROLL_HEIGHTS = [50, 65, 45]  // 不同弹跳高度 px
-const BOUNCE_DAMP = [0.6, 0.35, 0.15] // 弹跳衰减
-
+// ─── 骰子滚动（3D立方体拟真） ───
 function rollDice() {
 	if (isRolling.value) return
 	isRolling.value = true
@@ -51,153 +65,104 @@ function rollDice() {
 		newValues.push(Math.floor(Math.random() * 6) + 1)
 	}
 
-	const els = diceRefs.value.slice(0, diceCount.value)
-	if (!els.length) {
+	const cubes = cubeRefs.value.slice(0, diceCount.value)
+	if (!cubes.length) {
 		finishRoll(newValues)
 		return
 	}
 
-	// 每个骰子独立 GSAP 动画，依次延迟
-	els.forEach((el, idx) => {
-		gsap.set(el, { clearProps: 'transform' })
+	cubes.forEach((cube, idx) => {
+		// 清除之前的内联 transform
+		gsap.set(cube, { clearProps: 'transform' })
 
-		// 视觉翻面：滚动过程中快速切换显示值
-		const flipInterval = setInterval(() => {
-			if (isRolling.value) {
-				diceValues.value[idx] = Math.floor(Math.random() * 6) + 1
-			}
-		}, 80)
+		const targetVal = newValues[idx]
+		const final = FACE_FINAL[targetVal]
+		const spins = 3  // 完整旋转圈数
+
+		// 终点角度 = 额外圈数 + 目标面角度
+		const endX = spins * 360 + final.x
+		const endY = spins * 360 + final.y
 
 		const tl = gsap.timeline({
 			delay: idx * 0.15,
-			defaults: { ease: 'power2.inOut', overwrite: 'auto' },
+			defaults: { overwrite: 'auto' },
 			onComplete: () => {
-				clearInterval(flipInterval)
-				// 最终值 + 弹性归位
-				diceValues.value[idx] = newValues[idx]
-				gsap.to(el, {
-					scale: 1,
-					rotation: 0,
-					rotationX: 0,
-					rotationY: 0,
-					y: 0,
-					duration: 0.6,
-					ease: 'elastic.out(1.2, 0.25)',
-					clearProps: 'transform'
-				})
+				diceValues.value[idx] = targetVal
 			}
 		})
 
-		// Step 1: 抓起 — 向上提起 + 缩小蓄力
-		tl.to(el, {
-			y: -12,
-			scale: 0.82,
-			rotation: -5,
-			duration: 0.1,
+		// Step 1: 抓起蓄力
+		tl.to(cube, {
+			y: -10,
+			scale: 0.88,
+			duration: 0.08,
 			ease: 'power1.out'
 		}, 0)
 
-		// Step 2: 抛向空中 — 急速上升 + 开始3D翻转
-		tl.to(el, {
-			y: -ROLL_HEIGHTS[0] * 1.2,
-			scale: 0.7,
-			rotation: 180,
-			rotationX: 360,
-			rotationY: 180,
-			duration: 0.25,
+		// Step 2: 抛向空中 + 3D翻滚（快速）
+		tl.to(cube, {
+			rotationX: endX * 0.5,
+			rotationY: endY * 0.6,
+			y: -60,
+			scale: 0.72,
+			duration: 0.22,
 			ease: 'power3.out'
 		})
 
-		// Step 3: 空中顶点 — 旋转继续，速度减慢（势能转动能）
-		tl.to(el, {
-			rotation: 540,
-			rotationX: 720,
-			rotationY: 540,
-			scale: 0.65,
-			duration: 0.2,
+		// Step 3: 空中继续翻转
+		tl.to(cube, {
+			rotationX: endX * 0.8,
+			rotationY: endY * 0.85,
+			duration: 0.15,
 			ease: 'none'
 		})
 
-		// Step 4: 第一次落地 — 快速下落 + 触地弹起
-		tl.to(el, {
-			y: -ROLL_HEIGHTS[1],
-			rotation: 720,
-			rotationX: 1080,
-			rotationY: 900,
-			scale: BOUNCE_DAMP[0] + 0.3,
-			duration: 0.18,
+		// Step 4: 第一次触地反弹
+		tl.to(cube, {
+			rotationX: endX * 0.95,
+			rotationY: endY * 0.95,
+			y: 0,
+			scale: 1.1,
+			duration: 0.2,
 			ease: 'power2.in'
 		})
 
-		// Step 5: 第一次弹跳 — 弹起 + 旋转减速
-		tl.to(el, {
-			y: -ROLL_HEIGHTS[2],
-			rotation: 810,
-			rotationX: 1170,
-			rotationY: 990,
-			scale: BOUNCE_DAMP[0],
+		// Step 5: 第一次弹起
+		tl.to(cube, {
+			y: -35,
+			scale: 0.9,
 			duration: 0.12,
 			ease: 'power2.out'
 		})
 
-		// Step 6: 第二次触地 — 更小弹跳
-		tl.to(el, {
-			y: -6,
-			rotation: 855,
-			rotationX: 1215,
-			rotationY: 1035,
-			scale: BOUNCE_DAMP[1] + 0.15,
-			duration: 0.1,
-			ease: 'power2.in'
-		})
-
-		// Step 7: 第二次弹跳 — 微弹
-		tl.to(el, {
-			y: -3,
-			rotation: 873,
-			rotationX: 1233,
-			rotationY: 1047,
-			scale: BOUNCE_DAMP[1],
-			duration: 0.08,
-			ease: 'power2.out'
-		})
-
-		// Step 8: 第三次触地 — 几乎静止
-		tl.to(el, {
+		// Step 6: 第二次触地
+		tl.to(cube, {
+			rotationX: endX,
+			rotationY: endY,
 			y: 0,
-			rotation: 882,
-			rotationX: 1242,
-			rotationY: 1056,
-			scale: BOUNCE_DAMP[2] + 0.08,
-			duration: 0.06,
+			scale: 1.06,
+			duration: 0.14,
 			ease: 'power1.in'
 		})
 
-		// Step 9: 小弹 + 前倾
-		tl.to(el, {
-			y: -1,
-			rotation: 888,
-			rotationX: 1248,
-			rotationY: 1062,
-			scale: BOUNCE_DAMP[2],
-			duration: 0.05,
+		// Step 7: 小弹
+		tl.to(cube, {
+			y: -8,
+			scale: 0.96,
+			duration: 0.08,
 			ease: 'power1.out'
 		})
 
-		// Step 10: 最后晃动 — 到正位 + 轻微超调
-		tl.to(el, {
+		// Step 8: 第三次触地 + 弹性归位
+		tl.to(cube, {
 			y: 0,
-			rotation: 900,
-			rotationX: 1260,
-			rotationY: 1080,
-			scale: 1.03,
-			duration: 0.06,
-			ease: 'power2.in'
+			scale: 1,
+			duration: 0.15,
+			ease: 'elastic.out(1, 0.25)'
 		})
 	})
 
-	// 总时长 = 最后骰子延迟 + 动画时长
-	const totalDuration = (els.length - 1) * 0.15 + 1.35
+	const totalDuration = (cubes.length - 1) * 0.15 + 1.3
 	setTimeout(() => finishRoll(newValues), totalDuration * 1000)
 }
 
@@ -282,7 +247,6 @@ onMounted(() => {
 
 onUnmounted(() => {
 	uni.offAccelerometerChange?.(onShake)
-	if (gsapCtx) gsapCtx.revert()
 })
 </script>
 
@@ -318,7 +282,7 @@ onUnmounted(() => {
 			</view>
 		</view>
 
-		<!-- ══════ 骰子区 ══════ -->
+		<!-- ══════ 3D 骰子区 ══════ -->
 		<view
 			class="dice-area"
 			:style="{ transform: tiltX !== 0 ? 'perspective(600px)' : '' }"
@@ -326,27 +290,39 @@ onUnmounted(() => {
 			<view
 				v-for="(val, idx) in diceValues"
 				:key="idx"
-				:ref="(el) => setDiceRef(el, idx)"
 				class="dice"
-				:class="[
-					diceStyle === 'transparent' ? 'dice-transparent' : '',
-					diceStyle === 'frosted' ? 'dice-frosted' : '',
-					diceStyle === 'frosted-black' ? 'dice-frosted-black' : ''
-				]"
 				:style="{
 					zIndex: diceValues.length - idx,
-					marginTop: idx > 0 ? '20px' : '0'
+					marginTop: idx > 0 ? '24px' : '0'
 				}"
 				@tap="rollDice"
 			>
-				<view v-for="(pos, pi) in DOTS[val]" :key="pi"
-					class="dice-dot"
-					:style="{
-						left: `calc(50% + ${pos[0]} * 18px)`,
-						top: `calc(50% + ${pos[1]} * 18px)`
-					}"
-				></view>
-				<view class="dice-reflection"></view>
+				<!-- 3D 立方体 -->
+				<view
+					:ref="(el) => setCubeRef(el, idx)"
+					class="dice-cube"
+					:class="diceStyle"
+				>
+					<view
+						v-for="(face, fi) in CUBE_FACES"
+						:key="fi"
+						class="dice-face"
+						:class="'face-' + (fi + 1)"
+						:style="{ transform: face.transform }"
+					>
+						<view
+							v-for="(pos, pi) in DOTS[face.num]"
+							:key="pi"
+							class="dice-dot"
+							:style="{
+								left: `calc(50% + ${pos[0]} * 18px)`,
+								top: `calc(50% + ${pos[1]} * 18px)`
+							}"
+						></view>
+					</view>
+				</view>
+				<!-- 阴影投影 -->
+				<view class="dice-shadow"></view>
 			</view>
 		</view>
 
@@ -457,14 +433,13 @@ onUnmounted(() => {
 	color: var(--clr-text-secondary);
 }
 
-/* ══════ 骰子区 ══════ */
+/* ══════ 3D 骰子区 ══════ */
 .dice-area {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 0;
 	padding: 24px 0;
 }
 
@@ -472,34 +447,63 @@ onUnmounted(() => {
 	position: relative;
 	width: 110px;
 	height: 110px;
-	border-radius: 24px;
+	perspective: 900px;
 	cursor: pointer;
+}
+
+/* ─── 3D 立方体容器 ─── */
+.dice-cube {
+	width: 110px;
+	height: 110px;
+	position: relative;
+	transform-style: preserve-3d;
 	will-change: transform;
 }
 
-/* 透明样式 */
-.dice-transparent {
-	background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
-	border: 1px solid rgba(255,255,255,0.15);
-	backdrop-filter: blur(8px);
+/* ─── 6 个面 ─── */
+.dice-face {
+	position: absolute;
+	width: 110px;
+	height: 110px;
+	border-radius: 16px;
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	overflow: hidden;
 }
 
-/* 磨砂样式 */
-.dice-frosted {
-	background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+/* 磨砂白（默认） */
+.dice-cube.frosted .dice-face,
+.dice-face {
+	background: linear-gradient(145deg, rgba(255,255,255,0.40), rgba(255,255,255,0.12));
 	backdrop-filter: blur(8px);
-	border: 1px solid rgba(255,255,255,0.3);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 8px 24px rgba(0,0,0,0.1);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(255,255,255,0.28);
+	box-shadow:
+		inset 0 1px 0 rgba(255,255,255,0.40),
+		inset 0 -1px 0 rgba(0,0,0,0.06);
 }
 
-/* 磨砂黑样式 */
-.dice-frosted-black {
-	background: linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.15));
-	backdrop-filter: blur(8px);
-	border: 1px solid rgba(255,255,255,0.1);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 24px rgba(0,0,0,0.3);
+/* 透明 */
+.dice-cube.transparent .dice-face {
+	background: linear-gradient(145deg, rgba(255,255,255,0.20), rgba(255,255,255,0.04));
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	border: 1px solid rgba(255,255,255,0.12);
+	box-shadow: none;
 }
 
+/* 磨砂黑 */
+.dice-cube.frosted-black .dice-face {
+	background: linear-gradient(145deg, rgba(0,0,0,0.35), rgba(0,0,0,0.12));
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(255,255,255,0.08);
+	box-shadow:
+		inset 0 1px 0 rgba(255,255,255,0.10),
+		inset 0 -1px 0 rgba(0,0,0,0.15);
+}
+
+/* ─── 点数 ─── */
 .dice-dot {
 	position: absolute;
 	width: 5px;
@@ -510,24 +514,23 @@ onUnmounted(() => {
 	transform: translate(-50%, -50%);
 }
 
-.dice-transparent .dice-dot {
+.dice-cube.transparent .dice-dot {
 	background: var(--clr-text-primary);
 }
 
-.dice-frosted-black .dice-dot {
+.dice-cube.frosted-black .dice-dot {
 	background: rgba(255,255,255,0.85);
 }
 
-.dice-reflection {
+/* ─── 阴影 ─── */
+.dice-shadow {
 	position: absolute;
-	bottom: -2px;
-	left: 10%;
-	right: 10%;
-	height: 30px;
-	background: linear-gradient(to top, rgba(0,0,0,0.15), transparent);
-	transform: scaleY(-1);
-	mask-image: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
-	-webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+	bottom: -8px;
+	left: 5%;
+	right: 5%;
+	height: 16px;
+	background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 70%);
+	z-index: -1;
 	pointer-events: none;
 }
 
