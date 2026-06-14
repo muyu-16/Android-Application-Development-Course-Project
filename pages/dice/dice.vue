@@ -43,8 +43,13 @@ const showCoach = ref(false)
 const tiltX = ref(0)
 const tiltY = ref(0)
 
+// 两层引用：外框（y/scale弹跳） + 内立方体（旋转）
+const diceRefs = ref([])
 const cubeRefs = ref([])
 
+function setDiceRef(el, idx) {
+	if (el) diceRefs.value[idx] = el.$el || el
+}
 function setCubeRef(el, idx) {
 	if (el) cubeRefs.value[idx] = el.$el || el
 }
@@ -53,7 +58,7 @@ function setCubeRef(el, idx) {
 let lastX = 0, lastY = 0, lastZ = 0
 let shakeTimer = null
 
-// ─── 骰子滚动（3D立方体拟真） ───
+// ─── 骰子滚动（两层分离：外框弹跳 + 内立方体单段平滑旋转） ───
 function rollDice() {
 	if (isRolling.value) return
 	isRolling.value = true
@@ -66,103 +71,68 @@ function rollDice() {
 	}
 
 	const cubes = cubeRefs.value.slice(0, diceCount.value)
+	const dices = diceRefs.value.slice(0, diceCount.value)
 	if (!cubes.length) {
 		finishRoll(newValues)
 		return
 	}
 
 	cubes.forEach((cube, idx) => {
-		// 清除之前的内联 transform
-		gsap.set(cube, { clearProps: 'transform' })
-
+		const wrapper = dices[idx]
 		const targetVal = newValues[idx]
 		const final = FACE_FINAL[targetVal]
-		const spins = 3  // 完整旋转圈数
+		const spins = 3
 
-		// 终点角度 = 额外圈数 + 目标面角度
+		// 终点角度 = 额外圈数 + 目标面偏移
 		const endX = spins * 360 + final.x
 		const endY = spins * 360 + final.y
 
-		const tl = gsap.timeline({
+		// 清掉上一次的内联 transform
+		if (wrapper) gsap.set(wrapper, { clearProps: 'transform' })
+		gsap.set(cube, { clearProps: 'transform' })
+
+		// === 外框：垂直弹跳（y + scale）===
+		const bounceTl = gsap.timeline({
 			delay: idx * 0.15,
-			defaults: { overwrite: 'auto' },
 			onComplete: () => {
 				diceValues.value[idx] = targetVal
 			}
 		})
 
-		// Step 1: 抓起蓄力
-		tl.to(cube, {
-			y: -10,
-			scale: 0.88,
-			duration: 0.08,
-			ease: 'power1.out'
-		}, 0)
+		if (wrapper) {
+			bounceTl.to(wrapper, { y: -5, scale: 0.92, duration: 0.06, ease: 'power1.out' }, 0)
 
-		// Step 2: 抛向空中 + 3D翻滚（快速）
-		tl.to(cube, {
-			rotationX: endX * 0.5,
-			rotationY: endY * 0.6,
-			y: -60,
-			scale: 0.72,
-			duration: 0.22,
-			ease: 'power3.out'
-		})
+			// 抛起
+			bounceTl.to(wrapper, { y: -68, scale: 0.7, duration: 0.22, ease: 'power3.out' })
 
-		// Step 3: 空中继续翻转
-		tl.to(cube, {
-			rotationX: endX * 0.8,
-			rotationY: endY * 0.85,
-			duration: 0.15,
-			ease: 'none'
-		})
+			// 第一次落地
+			bounceTl.to(wrapper, { y: 0, scale: 1.12, duration: 0.18, ease: 'power2.in' })
 
-		// Step 4: 第一次触地反弹
-		tl.to(cube, {
-			rotationX: endX * 0.95,
-			rotationY: endY * 0.95,
-			y: 0,
-			scale: 1.1,
-			duration: 0.2,
-			ease: 'power2.in'
-		})
+			// 弹起
+			bounceTl.to(wrapper, { y: -32, scale: 0.85, duration: 0.12, ease: 'power2.out' })
 
-		// Step 5: 第一次弹起
-		tl.to(cube, {
-			y: -35,
-			scale: 0.9,
-			duration: 0.12,
-			ease: 'power2.out'
-		})
+			// 二次落地
+			bounceTl.to(wrapper, { y: 0, scale: 1.06, duration: 0.1, ease: 'power1.in' })
 
-		// Step 6: 第二次触地
-		tl.to(cube, {
+			// 小弹
+			bounceTl.to(wrapper, { y: -6, scale: 0.95, duration: 0.06, ease: 'power1.out' })
+
+			// 弹性归位
+			bounceTl.to(wrapper, { y: 0, scale: 1, duration: 0.3, ease: 'elastic.out(1.2, 0.3)' })
+		}
+
+		// === 内立方体：单段平滑 3D 旋转 ===
+		// 用 power3.inOut — 慢起→中间最快→慢停，符合抛掷惯性
+		gsap.to(cube, {
 			rotationX: endX,
 			rotationY: endY,
-			y: 0,
-			scale: 1.06,
-			duration: 0.14,
-			ease: 'power1.in'
-		})
-
-		// Step 7: 小弹
-		tl.to(cube, {
-			y: -8,
-			scale: 0.96,
-			duration: 0.08,
-			ease: 'power1.out'
-		})
-
-		// Step 8: 第三次触地 + 弹性归位
-		tl.to(cube, {
-			y: 0,
-			scale: 1,
-			duration: 0.15,
-			ease: 'elastic.out(1, 0.25)'
+			duration: 0.65,
+			ease: 'power3.inOut',
+			delay: idx * 0.15 + 0.04
 		})
 	})
 
-	const totalDuration = (cubes.length - 1) * 0.15 + 1.3
+	const totalDuration = (cubes.length - 1) * 0.15 + 1.1
 	setTimeout(() => finishRoll(newValues), totalDuration * 1000)
 }
 
@@ -290,6 +260,7 @@ onUnmounted(() => {
 			<view
 				v-for="(val, idx) in diceValues"
 				:key="idx"
+				:ref="(el) => setDiceRef(el, idx)"
 				class="dice"
 				:style="{
 					zIndex: diceValues.length - idx,
@@ -449,6 +420,7 @@ onUnmounted(() => {
 	height: 110px;
 	perspective: 900px;
 	cursor: pointer;
+	will-change: transform;
 }
 
 /* ─── 3D 立方体容器 ─── */
