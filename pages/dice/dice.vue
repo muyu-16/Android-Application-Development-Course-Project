@@ -88,48 +88,39 @@ function rollDice() {
 		const endY = spins * 360 + final.y
 
 		// 清掉上一次的内联 transform
-		if (wrapper) gsap.set(wrapper, { clearProps: 'transform' })
-		gsap.set(cube, { clearProps: 'transform' })
+		gsap.killTweensOf([wrapper, cube])
+		if (wrapper) gsap.set(wrapper, { y: 0, scale: 1, clearProps: 'transform' })
+		gsap.set(cube, { rotationX: 0, rotationY: 0, clearProps: 'transform' })
 
-		// === 外框：垂直弹跳（y + scale）===
-		const bounceTl = gsap.timeline({
+		// === 同一 timeline 同时控制外框 + 内立方体 ===
+		const tl = gsap.timeline({
 			delay: idx * 0.15,
 			onComplete: () => {
 				diceValues.value[idx] = targetVal
+				// 锁定最终旋转位姿，防止下一次 clearProps 时闪回
+				gsap.set(cube, { rotationX: endX, rotationY: endY })
 			}
 		})
 
 		if (wrapper) {
-			bounceTl.to(wrapper, { y: -5, scale: 0.92, duration: 0.06, ease: 'power1.out' }, 0)
-
-			// 抛起
-			bounceTl.to(wrapper, { y: -68, scale: 0.7, duration: 0.22, ease: 'power3.out' })
-
-			// 第一次落地
-			bounceTl.to(wrapper, { y: 0, scale: 1.12, duration: 0.18, ease: 'power2.in' })
-
-			// 弹起
-			bounceTl.to(wrapper, { y: -32, scale: 0.85, duration: 0.12, ease: 'power2.out' })
-
-			// 二次落地
-			bounceTl.to(wrapper, { y: 0, scale: 1.06, duration: 0.1, ease: 'power1.in' })
-
-			// 小弹
-			bounceTl.to(wrapper, { y: -6, scale: 0.95, duration: 0.06, ease: 'power1.out' })
-
-			// 弹性归位
-			bounceTl.to(wrapper, { y: 0, scale: 1, duration: 0.3, ease: 'elastic.out(1.2, 0.3)' })
+			// 外框：垂直弹跳
+			tl.to(wrapper, { y: -5, scale: 0.92, duration: 0.06, ease: 'power1.out' }, 0)
+			tl.to(wrapper, { y: -68, scale: 0.7, duration: 0.22, ease: 'power3.out' })
+			tl.to(wrapper, { y: 0, scale: 1.12, duration: 0.18, ease: 'power2.in' })
+			tl.to(wrapper, { y: -32, scale: 0.85, duration: 0.12, ease: 'power2.out' })
+			tl.to(wrapper, { y: 0, scale: 1.06, duration: 0.1, ease: 'power1.in' })
+			tl.to(wrapper, { y: -6, scale: 0.95, duration: 0.06, ease: 'power1.out' })
+			tl.to(wrapper, { y: 0, scale: 1, duration: 0.3, ease: 'elastic.out(1.2, 0.3)' })
 		}
 
-		// === 内立方体：单段平滑 3D 旋转 ===
-		// 用 power3.inOut — 慢起→中间最快→慢停，符合抛掷惯性
-		gsap.to(cube, {
+		// 内立方体：单段平滑 3D 旋转（在同一 timeline 中）
+		tl.to(cube, {
 			rotationX: endX,
 			rotationY: endY,
 			duration: 0.65,
-			ease: 'power3.inOut',
-			delay: idx * 0.15 + 0.04
-		})
+			ease: 'power3.inOut'
+		}, 0.04)
+	})
 	})
 
 	const totalDuration = (cubes.length - 1) * 0.15 + 1.1
