@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed } from 'vue'
 
 // 回合规则
@@ -184,7 +184,7 @@ function getComputerCardClass() {
 		</view>
 
 		<!-- 导航栏 -->
-		<view class="nav-bar glass-card">
+		<view class="nav-bar">
 			<view class="nav-left">
 				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
 				<text class="nav-title">猜拳</text>
@@ -321,9 +321,9 @@ function getComputerCardClass() {
 /* 容器 */
 .container {
 	min-height: 100vh;
-	padding: var(--sp-4);
-	padding-top: calc(var(--safe-area-top) + 12px);
-	padding-bottom: calc(var(--safe-area-bottom) + var(--sp-4));
+	padding: 16px;
+	padding-top: calc(var(--safe-area-top, 24px) + 20px);
+	padding-bottom: calc(var(--safe-area-bottom, 0px) + 20px);
 	background: linear-gradient(135deg, #E0F2F1 0%, #F3E5F5 50%, #FFF5F5 100%);
 	display: flex;
 	flex-direction: column;
@@ -364,26 +364,25 @@ function getComputerCardClass() {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: var(--sp-2) var(--sp-3);
-	border-radius: 18px !important;
-	margin-bottom: var(--sp-2);
+	padding-top: 12px;
+	margin-bottom: 20px;
 	position: relative;
 	z-index: 2;
 }
 .nav-left {
 	display: flex;
 	align-items: center;
-	gap: var(--sp-2);
+	gap: 12px;
 }
 .nav-back {
 	font-size: 22px;
-	color: var(--clr-text-primary);
+	color: #1C1B1F;
 	padding: 4px;
 }
 .nav-title {
-	font-size: var(--fs-body);
+	font-size: 22px;
 	font-weight: 700;
-	color: var(--clr-text-primary);
+	color: #1C1B1F;
 }
 .nav-right {
 	display: flex;

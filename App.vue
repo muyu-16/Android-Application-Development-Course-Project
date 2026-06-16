@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿<script setup>
 import { onLaunch } from '@dcloudio/uni-app'
 
 onLaunch(() => {
@@ -115,9 +115,12 @@ page, view, text, button, input, textarea, scroll-view, swiper, swiper-item {
 	--ease-spring: cubic-bezier(0.20, 0.80, 0.20, 1);
 	--ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-	/* ── 安全区域 ── */
-	--safe-top: env(safe-area-inset-top, 24rpx);
-	--safe-bottom: env(safe-area-inset-bottom, 0rpx);
+	/* ── 安全区域（px 单位，兼容 Android 状态栏） ── */
+	--safe-area-top: env(safe-area-inset-top, 24px);
+	--safe-area-bottom: env(safe-area-inset-bottom, 0px);
+	/* 兼容别名 */
+	--safe-top: env(safe-area-inset-top, 24px);
+	--safe-bottom: env(safe-area-inset-bottom, 0px);
 
 	/* ── 行高 ── */
 	--lh-tight: 1.15;

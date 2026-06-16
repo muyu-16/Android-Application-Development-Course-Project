@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useChipStore } from '@/stores/chip'
 
@@ -138,15 +138,14 @@ function handleCustom() {
 
 /* ══════ 导航栏 ══════ */
 .nav-bar {
-	height: 56px;
-	padding: 0 var(--sp-5);
-	padding-top: var(--safe-area-top);
+	height: 64px;
+	padding: 0 16px;
+	padding-top: calc(var(--safe-area-top) + 6px);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	position: relative;
 	z-index: 2;
-	padding-top: calc(var(--safe-area-top) + 8px);
 }
 
 .nav-left {

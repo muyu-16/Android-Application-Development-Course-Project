@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref } from 'vue'
 import { useChipStore } from '@/stores/chip'
 
@@ -89,7 +89,14 @@ function formatTime(ts) {
 
 <template>
 	<view class="container">
-		<!-- ====== Hero 卡片 ====== -->
+		<!-- 导航栏 -->
+		<view class="chip-nav">
+			<view class="nav-left">
+				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
+				<text class="chip-title">筹码</text>
+			</view>
+			<view class="nav-right"></view>
+		</view>
 		<view class="hero-card" :class="{ expanded: heroExpanded }" @tap="toggleHero">
 			<view class="hero-inner">
 				<view class="hero-top">
@@ -103,11 +110,11 @@ function formatTime(ts) {
 					<view v-for="p in store.sortedPlayers" :key="p.id" class="hero-player-row">
 						<view style="display:flex;align-items:center;gap:8px">
 							<view class="hero-avatar">
-								<text class="material-icons" style="font-size:16px;color:#381E72">{{ p.avatar }}</text>
+								<text style="font-size:16px;color:#000000">{{ p.avatar }}</text>
 							</view>
-							<text style="font-size:14px;font-weight:600;color:var(--clr-text-primary)">{{ p.name }}</text>
+							<text style="font-size:14px;font-weight:600;color:#000000">{{ p.name }}</text>
 						</view>
-						<text class="num" style="font-size:14px;font-weight:700;color:#21005D">{{ (p.balance - 1000) >= 0 ? '+' : '' }}{{ p.balance - 1000 }}</text>
+						<text class="num" style="font-size:14px;font-weight:700;color:#000000">{{ (p.balance - 1000) >= 0 ? '+' : '' }}{{ p.balance - 1000 }}</text>
 					</view>
 				</view>
 
@@ -295,13 +302,43 @@ function formatTime(ts) {
 
 <style scoped>
 /* ============================================================
+   导航栏
+   ============================================================ */
+.chip-nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: 12px;
+	margin-bottom: 20px;
+}
+.chip-nav .nav-left { display: flex; align-items: center; gap: 12px; }
+.chip-nav .nav-back {
+	font-size: 22px;
+	color: #000000;
+	padding: 4px;
+	transition: color 0.2s, opacity 0.2s, transform 0.15s;
+	cursor: pointer;
+}
+.chip-nav .nav-back:hover { color: #000000; opacity: 0.75; }
+.chip-nav .nav-back:active { color: #000000; opacity: 0.5; transform: scale(0.92); }
+.chip-title {
+	font-size: 22px;
+	font-weight: 700;
+	color: #000000;
+	transition: color 0.2s;
+}
+.chip-title:hover { color: #000000; opacity: 0.85; }
+.chip-title:active { color: #000000; opacity: 0.6; }
+.chip-nav .nav-right { display: flex; align-items: center; gap: 8px; }
+
+/* ============================================================
    基础布局
    ============================================================ */
 .container {
 	min-height: 100vh;
 	background: var(--clr-bg-primary);
 	padding: 16px;
-	padding-top: calc(env(safe-area-inset-top, 24px) + 12px);
+	padding-top: calc(var(--safe-area-top, 24px) + 12px);
 	padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
 }
 
@@ -316,11 +353,11 @@ function formatTime(ts) {
 	position: relative;
 	height: 220px;
 	border-radius: 28px;
-	margin-bottom: 12px;
+	margin-bottom: 16px;
 	cursor: pointer;
 	overflow: hidden;
 	transition: height 0.4s cubic-bezier(0.2,0.8,0.2,1);
-	background: linear-gradient(135deg, #EADDFF, #D0BCFF);
+	background: linear-gradient(135deg, #2D1B69, #6750A4);
 }
 
 .hero-card.expanded { height: 360px }
@@ -335,28 +372,37 @@ function formatTime(ts) {
 .hero-sub-label {
 	font-size: 13px;
 	font-weight: 600;
-	color: #381E72;
+	color: #000000;
 	letter-spacing: 0.5px;
 	margin-bottom: 4px;
+	transition: color 0.2s;
 }
+.hero-sub-label:hover { color: #000000; opacity: 0.85; }
+.hero-sub-label:active { color: #000000; opacity: 0.6; }
 
 .hero-number {
-	font-size: 56px;
+	font-size: 48px;
 	font-weight: 700;
-	color: #21005D;
+	color: #000000;
 	font-variant-numeric: tabular-nums;
 	line-height: 1.1;
-	margin-bottom: 4px;
+	margin-bottom: 6px;
+	transition: color 0.2s;
 }
+.hero-number:hover { color: #000000; opacity: 0.85; }
+.hero-number:active { color: #000000; opacity: 0.6; }
 
 .hero-meta {
 	font-size: 13px;
-	color: #381E72;
+	color: #000000;
+	transition: color 0.2s;
 }
+.hero-meta:hover { color: #000000; opacity: 0.85; }
+.hero-meta:active { color: #000000; opacity: 0.6; }
 
 .hero-divider {
 	height: 1px;
-	background: rgba(56,30,114,0.15);
+	background: rgba(255,255,255,0.15);
 	margin: 12px 0;
 }
 
@@ -364,14 +410,14 @@ function formatTime(ts) {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 4px 0;
+	padding: 6px 0;
 }
 
 .hero-avatar {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
-	background: rgba(255,255,255,0.5);
+	background: rgba(255,255,255,0.15);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -388,28 +434,25 @@ function formatTime(ts) {
 	width: 6px;
 	height: 6px;
 	border-radius: 50%;
-	background: rgba(56,30,114,0.3);
+	background: rgba(255,255,255,0.3);
 	transition: all 0.3s;
 }
 
 .indicator-dot.expanded {
 	width: 20px;
 	border-radius: 3px;
-	background: var(--clr-accent);
+	background: #D0BCFF;
 }
 
 /* ============================================================
    Tab
    ============================================================ */
 .tab-bar {
-	background: rgba(255,255,255,0.75);
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
+	background: rgba(255,255,255,0.08);
 	border-radius: 999px;
 	padding: 3px;
-	margin-bottom: 12px;
+	margin-bottom: 16px;
 	position: relative;
-	border: 1px solid rgba(255,255,255,0.3);
 }
 
 .tab-inner {
@@ -424,18 +467,24 @@ function formatTime(ts) {
 	border-radius: 999px;
 	z-index: 1;
 	cursor: pointer;
-	transition: color 0.25s;
 }
 
 .tab-item text {
 	font-size: 14px;
 	font-weight: 600;
-	color: var(--clr-text-primary);
+	color: #000000;
+	transition: color 0.2s, opacity 0.2s;
 }
 
+.tab-item:hover text { color: #000000; opacity: 0.75; }
+.tab-item:active text { color: #000000; opacity: 0.5; }
+
 .tab-item.active text {
-	color: var(--clr-accent-on);
+	color: #000000;
 }
+
+.tab-item.active:hover text { color: #000000; opacity: 0.85; }
+.tab-item.active:active text { color: #000000; opacity: 0.6; }
 
 .tab-indicator {
 	position: absolute;
@@ -443,7 +492,7 @@ function formatTime(ts) {
 	left: 0;
 	width: calc(33.33%);
 	height: 100%;
-	background: var(--clr-accent);
+	background: rgba(255,255,255,0.15);
 	border-radius: 999px;
 	transition: transform 0.3s cubic-bezier(0.2,0.8,0.2,1);
 	z-index: 0;
@@ -453,40 +502,34 @@ function formatTime(ts) {
    多选栏
    ============================================================ */
 .multi-bar {
-	background: rgba(255,255,255,0.75);
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
-	border-radius: 20px;
-	padding: 8px 12px;
-	margin-bottom: 8px;
+	background: rgba(255,255,255,0.06);
+	border-radius: 16px;
+	padding: 10px 14px;
+	margin-bottom: 12px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	border: 1px solid rgba(255,255,255,0.3);
 }
 
 .chip-btn {
 	padding: 4px 10px;
 	border-radius: 999px;
-	background: var(--clr-bg-secondary);
+	background: rgba(255,255,255,0.08);
 }
 
-.chip-btn.neg { background: rgba(179,38,30,0.08) }
-.chip-btn.cancel { background: var(--clr-bg-secondary) }
+.chip-btn.neg { background: rgba(179,38,30,0.15) }
+.chip-btn.cancel { background: rgba(255,255,255,0.08) }
 
 .member-row {
-	background: rgba(255,255,255,0.75);
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
-	border-radius: 20px;
-	margin-bottom: 8px;
-	border: 1px solid rgba(255,255,255,0.3);
+	background: rgba(255,255,255,0.06);
+	border-radius: 16px;
+	margin-bottom: 10px;
 	cursor: pointer;
 	transition: all 0.2s;
 }
 
 .member-row.selected {
-	border-color: var(--clr-accent);
+	background: rgba(208,188,255,0.10);
 }
 
 .member-row-inner {
@@ -501,7 +544,7 @@ function formatTime(ts) {
 	width: 36px;
 	height: 36px;
 	border-radius: 50%;
-	background: var(--clr-bg-secondary);
+	background: rgba(255,255,255,0.10);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -620,11 +663,8 @@ function formatTime(ts) {
 	width: 56px;
 	height: 56px;
 	border-radius: 50%;
-	background: rgba(255,255,255,0.82);
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.3);
-	box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+	background: rgba(208,188,255,0.90);
+	box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -632,6 +672,7 @@ function formatTime(ts) {
 	cursor: pointer;
 	transition: transform 0.2s, box-shadow 0.2s;
 }
+.fab:active { transform: scale(0.92); }
 
 /* ============================================================
    Sheet
@@ -649,9 +690,7 @@ function formatTime(ts) {
 	width: 100%;
 	max-width: 420px;
 	margin: 0 auto;
-	background: rgba(255,255,255,0.92);
-	backdrop-filter: blur(24px) saturate(180%);
-	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	background: #1C1B1F;
 	border-radius: 28px 28px 0 0;
 	padding: 24px 20px 32px;
 	display: flex;
@@ -674,37 +713,60 @@ function formatTime(ts) {
 .sheet-chip {
 	padding: 6px 14px;
 	border-radius: 999px;
-	background: var(--clr-bg-secondary);
-	transition: all 0.2s;
+	background: rgba(255,255,255,0.08);
+	color: #F5EFF7;
+	font-size: 14px;
+	font-weight: 600;
 }
 
 .sheet-chip.active {
-	background: var(--clr-accent);
+	background: #D0BCFF;
+	color: #381E72;
 }
 
 .amt-input-row {
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	background: var(--clr-bg-secondary);
-	border-radius: 20px;
-	padding: 10px 14px;
+	background: rgba(255,255,255,0.08);
+	border-radius: 16px;
+	padding: 12px 16px;
 }
 
 .note-input {
-	background: var(--clr-bg-secondary);
-	border-radius: 20px;
-	padding: 10px 14px;
+	background: rgba(255,255,255,0.08);
+	border-radius: 16px;
+	padding: 12px 16px;
 	font-size: 14px;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
+	width: 100%;
 }
 
 .sheet-btn {
 	flex: 1;
-	padding: 12px;
-	border-radius: 20px;
+	padding: 14px;
+	border-radius: 16px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	cursor: pointer;
+}
+
+.sheet-btn.primary {
+	background: #D0BCFF;
+}
+.sheet-btn.primary text {
+	font-size: 16px;
+	font-weight: 700;
+	color: #381E72;
+}
+
+.sheet-btn.secondary {
+	background: rgba(255,255,255,0.08);
+}
+.sheet-btn.secondary text {
+	font-size: 16px;
+	font-weight: 600;
+	color: #F5EFF7;
 }
 </style>

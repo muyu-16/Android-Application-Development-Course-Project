@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouletteStore, SECTOR_COLORS } from '@/stores/roulette'
 
@@ -337,9 +337,9 @@ function onButtonPress() {
 .container {
 	min-height: 100vh;
 	background: #000;
-	padding: var(--sp-4);
-	padding-top: calc(var(--safe-area-top) + 12px);
-	padding-bottom: calc(var(--safe-area-bottom) + var(--sp-4));
+	padding: 16px;
+	padding-top: calc(var(--safe-area-top, 24px) + 20px);
+	padding-bottom: calc(var(--safe-area-bottom, 0px) + var(--sp-4));
 	display: flex;
 	flex-direction: column;
 	position: relative;
@@ -359,24 +359,25 @@ function onButtonPress() {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: var(--sp-2);
+	padding-top: 12px;
+	margin-bottom: 20px;
 	position: relative;
 	z-index: 2;
 }
 .nav-left {
 	display: flex;
 	align-items: center;
-	gap: var(--sp-2);
+	gap: 12px;
 }
 .nav-back {
 	font-size: 22px;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
 	padding: 4px;
 }
 .nav-title {
-	font-size: 16px;
+	font-size: 22px;
 	font-weight: 700;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
 }
 .nav-right {
 	display: flex;
@@ -385,12 +386,12 @@ function onButtonPress() {
 .nav-edit {
 	padding: 6px 14px;
 	border-radius: 999px;
-	background: var(--clr-bg-secondary);
+	background: rgba(255,255,255,0.10);
 }
 .nav-edit text {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: 600;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
 }
 
 /* ─── 结果 Toast ─── */
