@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref } from 'vue'
 import { useChipStore } from '@/stores/chip'
 
@@ -155,7 +155,7 @@ function formatTime(ts) {
 				@tap="multiSelectMode ? toggleSelect(p.id) : undefined">
 				<view class="member-row-inner">
 					<view class="member-check" v-if="multiSelectMode" @tap.stop="toggleSelect(p.id)">
-						<text class="material-icons" style="font-size:22px;color:var(--clr-text-primary)">{{ selectedIds.has(p.id) ? 'check_circle' : 'radio_button_unchecked' }}</text>
+						<text class="material-icons" style="font-size:22px;color:var(--clr-text-primary)">{{ selectedIds.has(p.id) ? '✓' : '○' }}</text>
 					</view>
 					<view class="member-avatar">
 						<text class="material-icons" style="font-size:20px;color:var(--clr-text-primary)">{{ p.avatar }}</text>
@@ -170,17 +170,17 @@ function formatTime(ts) {
 					</text>
 					<view class="member-actions" v-if="!multiSelectMode">
 						<view class="icon-btn" @tap.stop="openTransfer(p.id)">
-							<text class="material-icons" style="font-size:18px;color:var(--clr-accent)">send</text>
+							<text class="material-icons" style="font-size:18px;color:var(--clr-accent)">➤</text>
 						</view>
 						<view class="icon-btn" @tap.stop="handleRemovePlayer(p.id)">
-							<text class="material-icons" style="font-size:18px;color:var(--clr-danger)">remove_circle_outline</text>
+							<text class="material-icons" style="font-size:18px;color:var(--clr-danger)">⊖</text>
 						</view>
 					</view>
 				</view>
 			</view>
 
 			<view class="empty-state" v-if="store.players.length === 0">
-				<text class="material-icons" style="font-size:96px;color:var(--clr-text-disabled)">people_outline</text>
+				<text class="material-icons" style="font-size:96px;color:var(--clr-text-disabled)">👥</text>
 				<text style="font-size:14px;color:var(--clr-text-secondary)">点击 + 添加第一个成员</text>
 			</view>
 		</view>
@@ -202,7 +202,7 @@ function formatTime(ts) {
 				</view>
 			</view>
 			<view class="empty-state" v-if="store.recentTransactions.length === 0">
-				<text class="material-icons" style="font-size:96px;color:var(--clr-text-disabled)">receipt_long</text>
+				<text class="material-icons" style="font-size:96px;color:var(--clr-text-disabled)">📋</text>
 				<text style="font-size:14px;color:var(--clr-text-secondary)">暂无流水记录</text>
 			</view>
 		</view>
@@ -213,19 +213,19 @@ function formatTime(ts) {
 			<view v-for="s in store.settlements" :key="s.fromId+s.toId" class="settle-row">
 				<view style="display:flex;align-items:center;gap:8px">
 					<view style="display:flex;align-items:center;gap:4px">
-						<text class="material-icons" style="font-size:18px;color:var(--clr-text-secondary)">person</text>
+						<text class="material-icons" style="font-size:18px;color:var(--clr-text-secondary)">👤</text>
 						<text style="font-size:14px;font-weight:600;color:var(--clr-text-primary)">{{ s.from }}</text>
 					</view>
-					<text class="material-icons" style="font-size:18px;color:var(--clr-accent)">arrow_forward</text>
+					<text class="material-icons" style="font-size:18px;color:var(--clr-accent)">→</text>
 					<view style="display:flex;align-items:center;gap:4px">
-						<text class="material-icons" style="font-size:18px;color:var(--clr-text-secondary)">person</text>
+						<text class="material-icons" style="font-size:18px;color:var(--clr-text-secondary)">👤</text>
 						<text style="font-size:14px;font-weight:600;color:var(--clr-text-primary)">{{ s.to }}</text>
 					</view>
 				</view>
 				<text class="num" style="font-size:16px;font-weight:700;color:var(--clr-danger)">{{ s.amount.toLocaleString() }}</text>
 			</view>
 			<view class="empty-state" v-if="store.settlements.length === 0">
-				<text class="material-icons" style="font-size:96px;color:var(--clr-text-disabled)">balance</text>
+				<text class="material-icons" style="font-size:96px;color:var(--clr-text-disabled)">⚖</text>
 				<text style="font-size:14px;color:var(--clr-text-secondary)">所有人账目已平</text>
 			</view>
 			<view class="primary-btn" @tap="confirmSettlement" v-if="store.settlements.length > 0">
@@ -235,7 +235,7 @@ function formatTime(ts) {
 
 		<!-- FAB -->
 		<view class="fab" @tap="handleAddPlayer">
-			<text class="material-icons" style="font-size:28px;color:var(--clr-accent)">add</text>
+			<text class="material-icons" style="font-size:28px;color:var(--clr-accent)">＋</text>
 		</view>
 
 		<!-- 转账 Sheet -->
@@ -492,9 +492,9 @@ function formatTime(ts) {
 .member-row-inner {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	padding: 0 12px;
-	height: 64px;
+	gap: 16px;
+	padding: 0 16px;
+	height: 72px;
 }
 
 .member-avatar {
@@ -620,19 +620,18 @@ function formatTime(ts) {
 	width: 56px;
 	height: 56px;
 	border-radius: 50%;
-	background: rgba(255,255,255,0.75);
+	background: rgba(255,255,255,0.82);
 	backdrop-filter: blur(16px) saturate(180%);
 	-webkit-backdrop-filter: blur(16px) saturate(180%);
 	border: 1px solid rgba(255,255,255,0.3);
-	box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+	box-shadow: 0 6px 24px rgba(0,0,0,0.12);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	z-index: 50;
 	cursor: pointer;
+	transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.fab:active { transform: scale(0.92) }
 
 /* ============================================================
    Sheet
@@ -648,14 +647,16 @@ function formatTime(ts) {
 
 .sheet {
 	width: 100%;
+	max-width: 420px;
+	margin: 0 auto;
 	background: rgba(255,255,255,0.92);
 	backdrop-filter: blur(24px) saturate(180%);
 	-webkit-backdrop-filter: blur(24px) saturate(180%);
 	border-radius: 28px 28px 0 0;
-	padding: 24px;
+	padding: 24px 20px 32px;
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 14px;
 }
 
 .sheet-section {

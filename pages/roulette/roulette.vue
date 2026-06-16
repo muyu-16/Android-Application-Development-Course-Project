@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouletteStore, SECTOR_COLORS } from '@/stores/roulette'
 
@@ -201,7 +201,7 @@ function onButtonPress() {
 		<!-- 导航 -->
 		<view class="nav-bar">
 			<view class="nav-left">
-				<text class="material-icons nav-back" @tap="uni.navigateBack()">arrow_back</text>
+				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
 				<text class="nav-title">轮盘</text>
 			</view>
 			<view class="nav-right">
@@ -271,7 +271,7 @@ function onButtonPress() {
 				@touchstart="onButtonPress"
 				@touchend="spin()"
 			>
-				<text class="material-icons center-icon">autorenew</text>
+				<text class="material-icons center-icon">⟳</text>
 			</view>
 		</view>
 
@@ -285,7 +285,7 @@ function onButtonPress() {
 					@confirm="handleAdd"
 				/>
 				<view class="edit-add-btn" @tap="handleAdd">
-					<text class="material-icons">add</text>
+					<text class="material-icons">＋</text>
 				</view>
 			</view>
 
@@ -308,17 +308,17 @@ function onButtonPress() {
 							@blur="cancelEdit"
 						/>
 						<view class="edit-item-ok" @tap="confirmEdit">
-							<text class="material-icons">check</text>
+							<text class="material-icons">✓</text>
 						</view>
 					</template>
 					<template v-else>
 						<text class="edit-item-label" @tap="startEdit(sec.id, sec.label)">{{ sec.label }}</text>
 						<view class="edit-item-actions">
 							<view class="edit-item-btn" @tap="startEdit(sec.id, sec.label)">
-								<text class="material-icons">edit</text>
+								<text class="material-icons">✎</text>
 							</view>
 							<view class="edit-item-btn remove" @tap="handleRemove(sec.id)">
-								<text class="material-icons">close</text>
+								<text class="material-icons">✕</text>
 							</view>
 						</view>
 					</template>
@@ -577,7 +577,7 @@ function onButtonPress() {
 /* ─── 编辑面板 ─── */
 .edit-panel {
 	margin-top: auto;
-	padding-top: var(--sp-3);
+	padding: 16px 0 8px;
 	position: relative;
 	z-index: 2;
 	animation: fade-in-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -587,15 +587,15 @@ function onButtonPress() {
 
 .edit-add {
 	display: flex;
-	gap: var(--sp-2);
-	margin-bottom: var(--sp-3);
+	gap: 10px;
+	margin-bottom: 14px;
 }
 .edit-input {
 	flex: 1;
 	background: rgba(255,255,255,0.08);
 	border: 1px solid rgba(255,255,255,0.15);
 	border-radius: 20px;
-	padding: 10px 14px;
+	padding: 12px 16px;
 	font-size: 14px;
 	color: var(--clr-text-primary);
 }
@@ -608,6 +608,7 @@ function onButtonPress() {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
 }
 .edit-add-btn .material-icons {
 	color: var(--clr-accent-on);
@@ -617,16 +618,16 @@ function onButtonPress() {
 .edit-list {
 	display: flex;
 	flex-direction: column;
-	gap: var(--sp-2);
-	margin-bottom: var(--sp-3);
+	gap: 8px;
+	margin-bottom: 14px;
 }
 .edit-item {
 	display: flex;
 	align-items: center;
-	gap: var(--sp-2);
-	padding: 8px 12px;
+	gap: 10px;
+	padding: 10px 14px;
 	background: var(--clr-bg-secondary);
-	border-radius: 20px;
+	border-radius: 16px;
 }
 .edit-color {
 	width: 12px;

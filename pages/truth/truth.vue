@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useQuestionStore } from '@/stores/questions'
 
@@ -195,7 +195,7 @@ const sliderBg = computed(() => {
 		<!-- ====== 导航栏 ====== -->
 		<view class="nav-bar glass-card">
 			<view class="nav-left">
-				<text class="material-icons nav-back" @tap="uni.navigateBack()">arrow_back</text>
+				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
 				<text class="nav-title">真心话大冒险</text>
 			</view>
 		</view>
@@ -232,7 +232,7 @@ const sliderBg = computed(() => {
 				<!-- 正面 -->
 				<view class="card-face card-front glass-card">
 					<view class="card-label">
-						<text class="material-icons">{{ store.mode === 'truth' ? 'psychology' : 'whatshot' }}</text>
+						<text>{{ store.mode === 'truth' ? '🧠' : '🔥' }}</text>
 						<text>{{ store.mode === 'truth' ? '真心话' : '大冒险' }}</text>
 					</view>
 
@@ -261,7 +261,7 @@ const sliderBg = computed(() => {
 				<!-- 背面 -->
 				<view class="card-face card-back glass-card">
 					<view class="back-emoji">
-						<text class="material-icons" style="font-size: 48px; color: var(--clr-gold);">auto_awesome</text>
+						<text class="material-icons" style="font-size: 48px; color: var(--clr-gold);">✨</text>
 					</view>
 					<text class="back-text">{{ flipResponse }}</text>
 					<text class="back-hint">点击下方按钮继续</text>
@@ -275,7 +275,7 @@ const sliderBg = computed(() => {
 				<text
 					class="material-icons slider-icon"
 					:style="{ color: store.intensity <= 2 ? '#6750A4' : 'var(--clr-text-disabled)' }"
-				>face</text>
+				>😌</text>
 				<view class="slider-track">
 					<view
 						class="slider-fill"
@@ -295,10 +295,7 @@ const sliderBg = computed(() => {
 						<text class="dot-label">{{ intensityLabels[i - 1] }}</text>
 					</view>
 				</view>
-				<text
-					class="material-icons slider-icon"
-					:style="{ color: store.intensity >= 4 ? '#FF6F00' : 'var(--clr-text-disabled)' }"
-				>whatshot</text>
+				<text class="material-icons slider-icon" :style="{ color: store.intensity >= 4 ? '#FF6F00' : 'var(--clr-text-disabled)' }">😱</text>
 			</view>
 		</view>
 
@@ -309,12 +306,12 @@ const sliderBg = computed(() => {
 					<text>跳过</text>
 				</view>
 				<view class="btn-custom" @tap="showCustomInput = !showCustomInput">
-					<text class="material-icons">add</text>
+					<text class="material-icons">＋</text>
 				</view>
 			</view>
 
 			<view class="btn-done glass-card" @tap="handleComplete">
-				<text class="material-icons">{{ isFlipped ? 'flip_to_back' : 'check' }}</text>
+				<text class="material-icons">{{ isFlipped ? '🔄' : '✓' }}</text>
 				<text>{{ isFlipped ? '知道了' : '完成✓' }}</text>
 			</view>
 		</view>
@@ -329,7 +326,7 @@ const sliderBg = computed(() => {
 					@confirm="addCustom"
 				/>
 				<view class="custom-add" @tap="addCustom">
-					<text class="material-icons">send</text>
+					<text class="material-icons">➤</text>
 				</view>
 			</view>
 		</view>
@@ -370,7 +367,7 @@ const sliderBg = computed(() => {
 						:class="{ disabled: isSpinning }"
 						@tap="spinWheel"
 					>
-						<text class="material-icons">{{ isSpinning ? 'autorenew' : 'casino' }}</text>
+						<text class="material-icons">{{ isSpinning ? '⟳' : '🎲' }}</text>
 						<text>{{ isSpinning ? '转动中...' : '开始' }}</text>
 					</view>
 					<view class="wheel-btn close" @tap="closeWheel">
@@ -567,9 +564,11 @@ const sliderBg = computed(() => {
 .card-text {
 	font-size: 24px;
 	font-weight: 700;
-	line-height: 1.6;
+	line-height: 1.7;
 	text-align: center;
 	color: var(--clr-text-primary);
+	padding: 0 4px;
+	letter-spacing: 0.3px;
 	transition: opacity 0.25s, transform 0.25s;
 }
 .card-text.text-out {

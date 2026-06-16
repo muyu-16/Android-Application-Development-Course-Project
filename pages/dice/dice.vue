@@ -1,4 +1,4 @@
-﻿﻿<script>
+﻿﻿﻿﻿﻿﻿﻿<script>
 // 标准骰子：对面之和=7
 const CUBE_FACES = [
   { num: 1, transform: 'rotateY(0deg) translateZ(60rpx)' },
@@ -119,7 +119,7 @@ export default {
   <view class="container" :style="{ transform: 'perspective(600px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg)' }"
     @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
     <view class="nav-bar">
-      <view class="nav-left"><text class="material-icons nav-back" @tap="uni.navigateBack()">arrow_back</text><text class="nav-title">骰子</text></view>
+      <view class="nav-left"><text class="material-icons nav-back" @tap="uni.navigateBack()">←</text><text class="nav-title">骰子</text></view>
       <view class="nav-right">
         <view class="seg-control">
           <view v-for="n in [1,2,3]" :key="n" class="seg-item" :class="{ active: diceCount === n }" @tap="setCount(n)"><text>{{ n }}</text></view>
@@ -145,7 +145,7 @@ export default {
       <view class="history-hint"><text class="history-hint-text">投掷记录</text></view>
       <scroll-view class="history-scroll" scroll-x>
         <view v-for="(h, i) in history" :key="h.id" class="history-chip" :class="{ faded: i >= 5 }">
-          <text class="material-icons history-icon">casino</text><text class="history-text">{{ h.values.join(',') }}</text>
+          <text class="material-icons history-icon">🎲</text><text class="history-text">{{ h.values.join(',') }}</text>
         </view>
       </scroll-view>
     </view>
@@ -210,13 +210,13 @@ export default {
 /* 落地弹跳 */
 @keyframes bounce-settle { 0%{transform:translateY(0)} 30%{transform:translateY(-20px)} 60%{transform:translateY(0)} 75%{transform:translateY(-8px)} 100%{transform:translateY(0)} }
 
-.history-wrap { margin-top: 8px; }
-.history-hint { margin-bottom: 8px; }
-.history-hint-text { font-size: 12px; color: #CAC4D0; font-weight: 600; }
-.history-scroll { display: flex; flex-direction: row; white-space: nowrap; overflow-x: auto; }
-.history-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 6px 14px; margin-right: 8px; }
-.history-icon { font-size: 14px; color: #CAC4D0; }
-.history-text { font-size: 12px; font-weight: 600; color: #F5EFF7; }
+.history-wrap { margin-top: 12px; }
+.history-hint { margin-bottom: 8px; padding-left: 2px; }
+.history-hint-text { font-size: 13px; color: #CAC4D0; font-weight: 600; letter-spacing: 0.5px; }
+.history-scroll { display: flex; flex-direction: row; white-space: nowrap; overflow-x: auto; padding-bottom: 4px; }
+.history-chip { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 8px 16px; margin-right: 10px; }
+.history-icon { font-size: 16px; color: #CAC4D0; }
+.history-text { font-size: 13px; font-weight: 700; color: #F5EFF7; font-variant-numeric: tabular-nums; }
 
 .coach-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 100; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 120px; }
 .coach-content { position: relative; display: flex; flex-direction: column; align-items: center; }

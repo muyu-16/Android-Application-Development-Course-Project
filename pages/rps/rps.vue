@@ -1,11 +1,11 @@
-﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed } from 'vue'
 
 // 回合规则
 const choices = [
-	{ id: 'rock', icon: 'back_hand', label: '石头', beats: 'scissors' },
-	{ id: 'paper', icon: 'front_hand', label: '布', beats: 'rock' },
-	{ id: 'scissors', icon: 'content_cut', label: '剪刀', beats: 'paper' }
+	{ id: 'rock', icon: '✊', label: '石头', beats: 'scissors' },
+	{ id: 'paper', icon: '🖐', label: '布', beats: 'rock' },
+	{ id: 'scissors', icon: '✌️', label: '剪刀', beats: 'paper' }
 ]
 
 const matchModes = [
@@ -186,7 +186,7 @@ function getComputerCardClass() {
 		<!-- 导航栏 -->
 		<view class="nav-bar glass-card">
 			<view class="nav-left">
-				<text class="material-icons nav-back" @tap="uni.navigateBack()">arrow_back</text>
+				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
 				<text class="nav-title">猜拳</text>
 			</view>
 			<view class="nav-right">
@@ -214,7 +214,7 @@ function getComputerCardClass() {
 			<!-- 玩家 -->
 			<view :class="getPlayerCardClass()">
 				<view class="card-avatar">
-					<text class="material-icons avatar-icon">person</text>
+					<text class="avatar-icon">👤</text>
 				</view>
 				<text class="card-name">你</text>
 				<view class="chip-score">
@@ -235,7 +235,7 @@ function getComputerCardClass() {
 			<view class="vs-column" @tap="isPlaying || isMatchOver ? null : null">
 				<view class="vs-divider"></view>
 				<view class="vs-circle" v-if="!isPlaying && !playerChoice && !isMatchOver">
-					<text class="vs-text">VS</text>
+					<text class="vs-text">对战</text>
 				</view>
 				<!-- 倒计时 -->
 				<view class="countdown-overlay" v-if="countdown > 0">
@@ -250,7 +250,7 @@ function getComputerCardClass() {
 			<!-- 电脑 -->
 			<view :class="getComputerCardClass()">
 				<view class="card-avatar">
-					<text class="material-icons avatar-icon">smartphone</text>
+					<text class="material-icons avatar-icon">📱</text>
 				</view>
 				<text class="card-name">电脑</text>
 				<view class="chip-score">
@@ -299,7 +299,7 @@ function getComputerCardClass() {
 			<view class="modal-glass glass-card" @tap.stop>
 				<view class="modal-icon">
 					<text class="material-icons" :style="{ color: finalMatchResult.includes('获') ? '#FFD740' : '#B3261E' }">
-						{{ finalMatchResult.includes('获') ? 'emoji_events' : 'mood_bad' }}
+						{{ finalMatchResult.includes('获') ? '🏆' : '😞' }}
 					</text>
 				</view>
 				<text class="modal-title">{{ finalMatchResult }}</text>
@@ -441,17 +441,18 @@ function getComputerCardClass() {
 /* 卡片 */
 .player-card,
 .computer-card {
-	width: 140px;
-	height: 140px;
+	width: 150px;
+	height: 150px;
 	border-radius: 50% !important;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 4px;
+	gap: 6px;
 	position: relative;
 	overflow: hidden;
 	transition: all 0.4s var(--ease-spring);
+	box-sizing: border-box;
 }
 
 .player-card {
@@ -660,7 +661,7 @@ function getComputerCardClass() {
 
 .action-row {
 	display: flex;
-	gap: var(--sp-3);
+	gap: 12px;
 }
 
 .action-btn {
@@ -668,13 +669,14 @@ function getComputerCardClass() {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 6px;
-	padding: 14px 12px;
+	gap: 8px;
+	padding: 16px 12px 14px;
 	border-radius: var(--rd-pill);
 	background: var(--clr-surface);
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	transition: all 0.2s var(--ease-spring);
 	cursor: pointer;
+	min-height: 72px;
 }
 .action-btn:active {
 	transform: scale(0.94);
@@ -693,9 +695,10 @@ function getComputerCardClass() {
 	color: var(--clr-accent);
 }
 .btn-label {
-	font-size: 11px;
-	font-weight: 600;
+	font-size: 12px;
+	font-weight: 700;
 	color: var(--clr-text-primary);
+	letter-spacing: 0.3px;
 }
 
 /* 结果弹窗 */

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿<script setup>
 import { onLaunch } from '@dcloudio/uni-app'
 
 onLaunch(() => {
@@ -21,17 +21,19 @@ page, view, text, button, input, textarea, scroll-view, swiper, swiper-item {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   Material Icons
+   Material Icons — 多 CDN 源（Google 国内不可用时走 cdnjs）
    ══════════════════════════════════════════════════════════════ */
 @font-face {
 	font-family: 'Material Icons';
 	font-style: normal;
 	font-weight: 400;
 	src: url(https://fonts.gstatic.com/s/materialicons/v143/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+	src: url(https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/iconfont/MaterialIcons-Regular.woff2) format('woff2'),
+	     url(https://fonts.gstatic.com/s/materialicons/v143/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
 }
 
 .material-icons {
-	font-family: 'Material Icons';
+	font-family: 'Material Icons', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
 	font-weight: normal;
 	font-style: normal;
 	font-size: 24px;
@@ -116,6 +118,14 @@ page, view, text, button, input, textarea, scroll-view, swiper, swiper-item {
 	/* ── 安全区域 ── */
 	--safe-top: env(safe-area-inset-top, 24rpx);
 	--safe-bottom: env(safe-area-inset-bottom, 0rpx);
+
+	/* ── 行高 ── */
+	--lh-tight: 1.15;
+	--lh-normal: 1.4;
+	--lh-loose: 1.6;
+
+	/* ── 触控最小尺寸 ── */
+	--touch-min: 44px;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -341,6 +351,35 @@ page {
 	min-height: 24rpx;
 	width: 100%;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   统一页面布局
+   ══════════════════════════════════════════════════════════════ */
+.page-safe {
+	padding-left: 16px;
+	padding-right: 16px;
+}
+.page-safe-top {
+	padding-top: calc(var(--safe-area-top, 24rpx) + 12px);
+}
+.page-safe-bottom {
+	padding-bottom: calc(var(--safe-area-bottom, 0rpx) + 24px);
+}
+
+/* 导航栏统一高度 */
+.nav-bar-lg {
+	height: 56px;
+	padding: 0 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* 卡片统一间距栈 */
+.stack-2 { gap: 4px; display: flex; flex-direction: column; }
+.stack-3 { gap: 8px; display: flex; flex-direction: column; }
+.stack-4 { gap: 12px; display: flex; flex-direction: column; }
+.stack-5 { gap: 16px; display: flex; flex-direction: column; }
 </style>
 
 <template>

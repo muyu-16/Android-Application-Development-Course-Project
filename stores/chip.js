@@ -16,10 +16,10 @@ export const useChipStore = defineStore('chip', () => {
 
 	// ─── 状态 ───
 	const players = ref(saved?.players || [
-		{ id: 1, name: '玩家1', avatar: 'face', balance: 1000 },
-		{ id: 2, name: '玩家2', avatar: 'face_2', balance: 1000 },
-		{ id: 3, name: '玩家3', avatar: 'face_3', balance: 1000 },
-		{ id: 4, name: '玩家4', avatar: 'face_4', balance: 1000 }
+		{ id: 1, name: '玩家1', avatar: '👤', balance: 1000 },
+		{ id: 2, name: '玩家2', avatar: '👤', balance: 1000 },
+		{ id: 3, name: '玩家3', avatar: '👤', balance: 1000 },
+		{ id: 4, name: '玩家4', avatar: '👤', balance: 1000 }
 	])
 	const transactions = ref(saved?.transactions || [])
 	const nextPlayerId = ref(saved?.nextPlayerId || 5)

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useChipStore } from '@/stores/chip'
 
@@ -16,19 +16,19 @@ const tagline = ref(taglines[Math.floor(Math.random() * taglines.length)])
 // ══════ 用户信息 ══════
 const user = computed(() => {
 	const me = chip.players[0]
-	return me ? { name: me.name, avatar: me.avatar } : { name: '游客', avatar: 'face' }
+	return me ? { name: me.name, avatar: me.avatar } : { name: '游客', avatar: '👤' }
 })
 
 // ══════ 游戏卡片数据 ══════
 const games = [
-	{ id: 'dice',    title: '骰子',   icon: 'casino',         color: '#CE93D8', page: '/pages/dice/dice' },
-	{ id: 'roulette', title: '轮盘',  icon: '360',            color: '#90CAF9', page: '/pages/roulette/roulette' },
-	{ id: 'truth',   title: '真心话', icon: 'psychology',      color: '#F48FB1', page: '/pages/truth/truth' },
-	{ id: 'rps',     title: '猜拳',   icon: 'sports_esports',  color: '#80DEEA', page: '/pages/rps/rps' },
-	{ id: 'chip',    title: '筹码',   icon: 'paid',            color: '#A5D6A7', page: '/pages/chip/chip' }
+	{ id: 'dice',    title: '骰子',   icon: '🎲',   color: '#CE93D8', page: '/pages/dice/dice' },
+	{ id: 'roulette', title: '轮盘',  icon: '🎯',   color: '#90CAF9', page: '/pages/roulette/roulette' },
+	{ id: 'truth',   title: '真心话', icon: '🧠',   color: '#F48FB1', page: '/pages/truth/truth' },
+	{ id: 'rps',     title: '猜拳',   icon: '✋',    color: '#80DEEA', page: '/pages/rps/rps' },
+	{ id: 'chip',    title: '筹码',   icon: '💰',   color: '#A5D6A7', page: '/pages/chip/chip' }
 ]
 
-const extraCard = { id: 'custom', title: '自定义', icon: 'add', color: '#E0E0E0' }
+const extraCard = { id: 'custom', title: '自定义', icon: '＋', color: '#E0E0E0' }
 
 // ══════ Tab ══════
 const activeTab = ref(0)
@@ -82,7 +82,7 @@ function handleCustom() {
 					hover-class="card-press"
 				>
 					<view class="card-icon-wrap add">
-						<text class="material-icons card-icon">add</text>
+						<text class="material-icons card-icon">＋</text>
 					</view>
 					<text class="card-label">自定义</text>
 				</view>
@@ -92,20 +92,18 @@ function handleCustom() {
 		<!-- ══════ 底部 Tab Bar ══════ -->
 		<view class="tab-bar">
 			<view
-				v-for="(tab, idx) in ['home', 'history', 'person']"
+				v-for="(tab, idx) in ['首页', '历史', '我的']"
 				:key="tab"
 				class="tab-item"
 				:class="{ active: activeTab === idx }"
 				@tap="activeTab = idx"
 			>
 				<view class="tab-icon-wrap">
-					<text class="material-icons tab-icon">
-						{{ tab === 'home' ? 'home' : tab === 'history' ? 'history' : 'person' }}
+					<text class="tab-icon">
+						{{ tab === '首页' ? '🏠' : tab === '历史' ? '🕐' : '👤' }}
 					</text>
 				</view>
-				<text class="tab-label">
-					{{ tab === 'home' ? '首页' : tab === 'history' ? '历史' : '我的' }}
-				</text>
+				<text class="tab-label">{{ tab }}</text>
 				<view class="tab-indicator" v-if="activeTab === idx"></view>
 			</view>
 		</view>
@@ -206,19 +204,19 @@ function handleCustom() {
 .grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	gap: var(--sp-3);
+	gap: 16px;
 }
 
 /* ══════ 游戏卡片 ══════ */
 .game-card {
 	position: relative;
-	height: 200px;
-	border-radius: 28px;
+	height: 180px;
+	border-radius: 24px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: var(--sp-3);
+	gap: 12px;
 	cursor: pointer;
 	overflow: hidden;
 	background: rgba(255, 255, 255, 0.65);
@@ -229,7 +227,6 @@ function handleCustom() {
 	transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s;
 	animation: card-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 	animation-delay: var(--delay);
-  /* 高光线效果 */
 }
 .game-card::before {
 	content: '';
@@ -345,11 +342,13 @@ function handleCustom() {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 2px;
+	gap: 4px;
 	height: 100%;
+	min-height: 48px;
 	position: relative;
 	cursor: pointer;
 	transition: transform 0.15s;
+	padding: 6px 0;
 }
 
 .tab-item:active { transform: scale(0.94); }
