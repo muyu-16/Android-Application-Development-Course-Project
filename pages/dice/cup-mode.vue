@@ -120,8 +120,16 @@ onBeforeUnmount(() => stopShake())
 			<view class="cup-container" :class="{ shaking: shakeAnim }">
 				<!-- 骰盅盖子（覆盖在骰子上） -->
 				<view class="cup-lid" :class="{ lifted: cupLifted }">
-					<view class="cup-handle"></view>
-					<text class="cup-icon">🎲</text>
+					<!-- 顶面开口（椭圆形洞口） -->
+					<view class="cup-opening"></view>
+					<!-- 杯身主体（圆柱形 + 渐变光泽） -->
+					<view class="cup-body"></view>
+					<!-- 杯底阴影 -->
+					<view class="cup-base"></view>
+					<!-- 杯身左侧高光 -->
+					<view class="cup-hl cup-hl-left"></view>
+					<!-- 杯身右侧高光 -->
+					<view class="cup-hl cup-hl-right"></view>
 				</view>
 
 				<!-- 骰子们 -->
@@ -258,37 +266,126 @@ onBeforeUnmount(() => stopShake())
 	100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-/* ─── 骰盅盖子 ─── */
+/* ─── 骰盅盖子（实体黑色骰盅） ─── */
 .cup-lid {
 	position: absolute;
-	inset: 8px;
-	background: linear-gradient(135deg, #2D1B69 0%, #1E1B3A 100%);
-	border: 2px solid rgba(208, 188, 255, 0.55);
-	border-radius: 20px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	gap: 12px;
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.15);
-	transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+	width: 200px;
+	height: 240px;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
 	z-index: 10;
 	transform-origin: bottom center;
+	transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .cup-lid.lifted {
-	transform: translateY(-140px) rotateX(20deg);
-	opacity: 0.95;
+	transform: translate(-50%, -50%) translateY(-180px) rotateX(25deg);
 }
-.cup-handle {
-	width: 50px;
+
+/* 杯身：圆柱形（顶部宽、底部略窄），黑色光泽渐变 */
+.cup-body {
+	position: absolute;
+	inset: 8% 0 0 0;
+	background:
+		/* 顶部边缘高光环 */
+		linear-gradient(180deg,
+			rgba(255,255,255,0.22) 0%,
+			rgba(255,255,255,0.06) 4%,
+			transparent 8%
+		),
+		/* 杯身光泽：中间微亮，两侧深 */
+		linear-gradient(90deg,
+			#000 0%,
+			#1c1c1c 8%,
+			#2a2a2a 25%,
+			#1a1a1a 50%,
+			#2a2a2a 75%,
+			#1c1c1c 92%,
+			#000 100%
+		),
+		/* 垂直渐变（顶部略亮，底部深） */
+		linear-gradient(180deg,
+			#1a1a1a 0%,
+			#0a0a0a 40%,
+			#000 100%
+		);
+	/* 顶部圆弧（俯视椭圆效果），底部微圆 */
+	border-radius: 50% 50% 35% 35% / 18% 18% 6% 6%;
+	/* 杯壁立体感：上沿白色微高光，内壁深黑阴影 */
+	box-shadow:
+		inset 0 6px 0 -2px rgba(255,255,255,0.25),
+		inset 0 -30px 40px -20px rgba(0,0,0,0.95),
+		inset 0 0 0 1px rgba(255,255,255,0.05),
+		0 12px 30px rgba(0,0,0,0.65),
+		0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* 顶面开口：椭圆形深色"洞口"，杯身顶部叠加显示 */
+.cup-opening {
+	position: absolute;
+	top: 4%;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 76%;
+	height: 12%;
+	background: radial-gradient(ellipse at center,
+		#000 0%,
+		#050505 50%,
+		#1a1a1a 90%,
+		#2a2a2a 100%
+	);
+	border-radius: 50%;
+	z-index: 3;
+	box-shadow:
+		inset 0 3px 8px rgba(0,0,0,0.95),
+		inset 0 -1px 2px rgba(255,255,255,0.08),
+		0 1px 0 rgba(255,255,255,0.15);
+}
+
+/* 杯底：略宽的底环，模拟接触面 */
+.cup-base {
+	position: absolute;
+	bottom: 0;
+	left: 4%;
+	right: 4%;
 	height: 8px;
-	background: linear-gradient(to bottom, #6B5B95, #4A3F6B);
-	border-radius: 4px;
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
+	border-radius: 50%;
+	filter: blur(0.5px);
+	box-shadow:
+		0 4px 12px rgba(0,0,0,0.6),
+		inset 0 1px 0 rgba(255,255,255,0.06);
+	z-index: 1;
 }
-.cup-icon {
-	font-size: 80px;
-	filter: drop-shadow(0 4px 12px rgba(208, 188, 255, 0.5));
+
+/* 杯身侧高光带（玻璃反光） */
+.cup-hl {
+	position: absolute;
+	top: 12%;
+	bottom: 6%;
+	width: 14px;
+	z-index: 2;
+	pointer-events: none;
+}
+.cup-hl-left {
+	left: 10%;
+	background: linear-gradient(90deg,
+		rgba(255,255,255,0.18) 0%,
+		rgba(255,255,255,0.05) 60%,
+		transparent 100%
+	);
+	border-radius: 50%;
+	filter: blur(2px);
+}
+.cup-hl-right {
+	right: 10%;
+	background: linear-gradient(270deg,
+		rgba(255,255,255,0.14) 0%,
+		rgba(255,255,255,0.04) 60%,
+		transparent 100%
+	);
+	border-radius: 50%;
+	filter: blur(2px);
 }
 
 /* ─── 骰子们 ─── */
