@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouletteStore, SECTOR_COLORS } from '@/stores/roulette'
 
@@ -379,47 +379,52 @@ function onButtonPress() {
 	font-weight: 700;
 	color: #F5EFF7;
 }
-.nav-right {
-	display: flex;
-	align-items: center;
-}
+/* ─── 导航栏按钮（玻璃态） ─── */
+.nav-right { display: flex; align-items: center; }
 .nav-edit {
-	padding: 6px 14px;
+	padding: 8px 16px;
 	border-radius: 999px;
-	background: rgba(255,255,255,0.10);
+	background: rgba(30,27,35,0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.12);
+	box-shadow: 0 4px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.nav-edit:active { transform: scale(0.94); background: rgba(30,27,35,0.75); }
 .nav-edit text {
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 700;
 	color: #F5EFF7;
 }
 
-/* ─── 结果 Toast ─── */
+/* ─── 结果 Toast（玻璃态浮层） ─── */
 .result-toast {
 	position: fixed;
 	top: calc(var(--safe-area-top) + 60px);
 	left: 50%;
 	transform: translateX(-50%) translateY(-80px);
 	z-index: 50;
-	transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+	transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
 	pointer-events: none;
 }
 .result-toast.visible {
 	transform: translateX(-50%) translateY(0);
 }
 .toast-inner {
-	background: rgba(255,255,255,0.12);
-	backdrop-filter: blur(24px) saturate(180%);
-	-webkit-backdrop-filter: blur(24px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.15);
+	background: rgba(30, 27, 35, 0.70);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.12);
 	border-radius: 999px;
 	padding: 10px 24px;
-	box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+	box-shadow: 0 8px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 .toast-text {
 	font-size: 16px;
 	font-weight: 700;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
 }
 
 /* ─── 转盘 ─── */
@@ -530,7 +535,7 @@ function onButtonPress() {
 	pointer-events: none;
 }
 
-/* ─── 中心按钮 ─── */
+/* ─── 中心转动按钮（深紫+玻璃态高亮） ─── */
 .center-btn {
 	position: absolute;
 	top: 50%;
@@ -538,27 +543,33 @@ function onButtonPress() {
 	width: 60px;
 	height: 60px;
 	border-radius: 50%;
-	background: var(--clr-accent);
+	background: rgba(208, 188, 255, 0.28);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(208,188,255,0.55);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	z-index: 5;
 	cursor: pointer;
-	transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
-	box-shadow: 0 2px 12px rgba(103,80,164,0.5);
+	transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s, background 0.25s;
+	box-shadow: 0 4px 24px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
 	animation: pulse-glow 2s ease-in-out infinite;
 }
 .center-btn.spinning {
 	animation: none;
-	box-shadow: 0 2px 12px rgba(103,80,164,0.5);
+	background: rgba(208, 188, 255, 0.20);
+	box-shadow: 0 2px 12px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .center-btn:active {
 	transform: translate(-50%, -50%) scale(0.9) !important;
+	background: rgba(208, 188, 255, 0.38);
 }
 
 .center-icon {
 	font-size: 28px;
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
+	font-weight: 700;
 	animation: icon-rotate 1.5s linear infinite;
 	animation-play-state: paused;
 }
@@ -567,15 +578,15 @@ function onButtonPress() {
 }
 
 @keyframes pulse-glow {
-	0%, 100% { box-shadow: 0 2px 12px rgba(103,80,164,0.5); }
-	50% { box-shadow: 0 2px 28px rgba(103,80,164,0.8); }
+	0%, 100% { box-shadow: 0 4px 24px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.25); }
+	50% { box-shadow: 0 4px 36px rgba(208,188,255,0.60), inset 0 1px 0 rgba(255,255,255,0.35); }
 }
 @keyframes icon-rotate {
 	from { transform: rotate(0deg); }
 	to { transform: rotate(360deg); }
 }
 
-/* ─── 编辑面板 ─── */
+/* ─── 编辑面板（玻璃态） ─── */
 .edit-panel {
 	margin-top: auto;
 	padding: 16px 0 8px;
@@ -593,26 +604,35 @@ function onButtonPress() {
 }
 .edit-input {
 	flex: 1;
-	background: rgba(255,255,255,0.08);
-	border: 1px solid rgba(255,255,255,0.15);
-	border-radius: 20px;
-	padding: 12px 16px;
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.12);
+	border-radius: 999px;
+	padding: 12px 18px;
 	font-size: 14px;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
 }
-.edit-input::placeholder { color: var(--clr-text-disabled); }
+.edit-input::placeholder { color: #938F99; }
 .edit-add-btn {
 	width: 44px;
 	height: 44px;
 	border-radius: 50%;
-	background: var(--clr-accent);
+	background: rgba(208, 188, 255, 0.28);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(208,188,255,0.55);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
+	box-shadow: 0 4px 20px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.edit-add-btn:active { transform: scale(0.92); background: rgba(208, 188, 255, 0.38); }
 .edit-add-btn .material-icons {
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
 	font-size: 22px;
 }
 
@@ -627,9 +647,15 @@ function onButtonPress() {
 	align-items: center;
 	gap: 10px;
 	padding: 10px 14px;
-	background: var(--clr-bg-secondary);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
 	border-radius: 16px;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1);
 }
+.edit-item:active { transform: scale(0.98); }
 .edit-color {
 	width: 12px;
 	height: 12px;
@@ -639,30 +665,37 @@ function onButtonPress() {
 .edit-item-label {
 	flex: 1;
 	font-size: 14px;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
 	font-weight: 500;
 }
 .edit-item-input {
 	flex: 1;
-	background: rgba(255,255,255,0.1);
-	border: 1px solid var(--clr-accent);
+	background: rgba(255,255,255,0.08);
+	border: 1px solid rgba(208,188,255,0.35);
 	border-radius: 8px;
 	padding: 6px 10px;
 	font-size: 14px;
-	color: var(--clr-text-primary);
+	color: #F5EFF7;
 }
 .edit-item-ok {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
-	background: var(--clr-accent);
+	background: rgba(208, 188, 255, 0.28);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(208,188,255,0.55);
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-shadow: 0 2px 8px rgba(208,188,255,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1);
+	cursor: pointer;
 }
+.edit-item-ok:active { transform: scale(0.92); }
 .edit-item-ok .material-icons {
 	font-size: 16px;
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
 }
 .edit-item-actions {
 	display: flex;
@@ -672,25 +705,42 @@ function onButtonPress() {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
-	background: var(--clr-bg-secondary);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.12);
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1);
+	cursor: pointer;
 }
+.edit-item-btn:active { transform: scale(0.92); }
 .edit-item-btn .material-icons {
 	font-size: 16px;
-	color: var(--clr-text-secondary);
+	color: #CAC4D0;
 }
 .edit-item-btn.remove .material-icons {
-	color: var(--clr-danger);
+	color: #F2B8B5;
 }
 .edit-reset {
 	text-align: center;
-	padding: 8px;
+	padding: 10px 14px;
+	border-radius: 999px;
+	background: rgba(30, 27, 35, 0.45);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1);
+	cursor: pointer;
 }
+.edit-reset:active { transform: scale(0.98); }
 .edit-reset text {
-	font-size: 12px;
-	color: var(--clr-text-disabled);
+	font-size: 13px;
+	font-weight: 600;
+	color: #CAC4D0;
 }
 
 @keyframes fade-in-up {

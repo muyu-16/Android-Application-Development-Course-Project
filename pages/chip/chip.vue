@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref } from 'vue'
 import { useChipStore } from '@/stores/chip'
 
@@ -514,11 +514,18 @@ function formatTime(ts) {
 .chip-btn {
 	padding: 4px 10px;
 	border-radius: 999px;
-	background: rgba(255,255,255,0.08);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
+	box-shadow: 0 4px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.chip-btn:active { transform: scale(0.96); }
 
-.chip-btn.neg { background: rgba(179,38,30,0.15) }
-.chip-btn.cancel { background: rgba(255,255,255,0.08) }
+.chip-btn.neg { background: rgba(225, 110, 90, 0.18); border: 1px solid rgba(247,141,124,0.35); box-shadow: 0 4px 16px rgba(247,141,124,0.15), inset 0 1px 0 rgba(255,255,255,0.08); }
+.chip-btn.cancel { background: rgba(30, 27, 35, 0.45); border: 1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
 
 .member-row {
 	background: rgba(255,255,255,0.06);
@@ -560,11 +567,18 @@ function formatTime(ts) {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
-	background: var(--clr-bg-secondary);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.icon-btn:active { transform: scale(0.92); }
 
 /* ============================================================
    流水
@@ -603,23 +617,24 @@ function formatTime(ts) {
 
 .tl-card {
 	flex: 1;
-	background: rgba(255,255,255,0.75);
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
 	border-radius: 16px;
 	padding: 12px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	min-height: 56px;
-	border: 1px solid rgba(255,255,255,0.3);
+	border: 1px solid rgba(255,255,255,0.10);
+	box-shadow: 0 4px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 /* ============================================================
    结算
    ============================================================ */
 .settle-row {
-	background: rgba(255,255,255,0.75);
+	background: rgba(30, 27, 35, 0.60);
 	backdrop-filter: blur(16px) saturate(180%);
 	-webkit-backdrop-filter: blur(16px) saturate(180%);
 	border-radius: 16px;
@@ -628,7 +643,8 @@ function formatTime(ts) {
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 8px;
-	border: 1px solid rgba(255,255,255,0.3);
+	border: 1px solid rgba(255,255,255,0.12);
+	box-shadow: 0 4px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .primary-btn {
@@ -638,9 +654,16 @@ function formatTime(ts) {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--clr-accent);
+	background: rgba(208, 188, 255, 0.28);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(208,188,255,0.55);
+	box-shadow: 0 4px 20px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
 	margin-top: 8px;
+	cursor: pointer;
 }
+.primary-btn:active { transform: scale(0.97); background: rgba(208, 188, 255, 0.38); }
 
 /* ============================================================
    空状态
@@ -663,16 +686,19 @@ function formatTime(ts) {
 	width: 56px;
 	height: 56px;
 	border-radius: 50%;
-	background: rgba(208,188,255,0.90);
-	box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+	background: rgba(208, 188, 255, 0.32);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(208,188,255,0.55);
+	box-shadow: 0 4px 24px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	z-index: 50;
 	cursor: pointer;
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.25s, background 0.25s;
 }
-.fab:active { transform: scale(0.92); }
+.fab:active { transform: scale(0.92); background: rgba(208, 188, 255, 0.42); }
 
 /* ============================================================
    Sheet
@@ -690,12 +716,16 @@ function formatTime(ts) {
 	width: 100%;
 	max-width: 420px;
 	margin: 0 auto;
-	background: #1C1B1F;
+	background: rgba(30, 27, 35, 0.78);
+	backdrop-filter: blur(24px) saturate(180%);
+	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.12);
 	border-radius: 28px 28px 0 0;
 	padding: 24px 20px 32px;
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
+	box-shadow: 0 -4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .sheet-section {
@@ -713,33 +743,53 @@ function formatTime(ts) {
 .sheet-chip {
 	padding: 6px 14px;
 	border-radius: 999px;
-	background: rgba(255,255,255,0.08);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
 	color: #F5EFF7;
 	font-size: 14px;
 	font-weight: 600;
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.sheet-chip:active { transform: scale(0.96); }
 
 .sheet-chip.active {
-	background: #D0BCFF;
-	color: #381E72;
+	background: rgba(208, 188, 255, 0.28);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(208,188,255,0.55);
+	box-shadow: 0 2px 12px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+	color: #EADDFF;
+	font-weight: 700;
 }
 
 .amt-input-row {
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	background: rgba(255,255,255,0.08);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
 	border-radius: 16px;
 	padding: 12px 16px;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .note-input {
-	background: rgba(255,255,255,0.08);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
 	border-radius: 16px;
 	padding: 12px 16px;
 	font-size: 14px;
 	color: #F5EFF7;
 	width: 100%;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .sheet-btn {
@@ -750,23 +800,33 @@ function formatTime(ts) {
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, box-shadow 0.25s;
 }
+.sheet-btn:active { transform: scale(0.97); }
 
 .sheet-btn.primary {
-	background: #D0BCFF;
+	background: rgba(208, 188, 255, 0.32);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(208,188,255,0.55);
+	box-shadow: 0 4px 20px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .sheet-btn.primary text {
 	font-size: 16px;
 	font-weight: 700;
-	color: #381E72;
+	color: #EADDFF;
 }
 
 .sheet-btn.secondary {
-	background: rgba(255,255,255,0.08);
+	background: rgba(30, 27, 35, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.10);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .sheet-btn.secondary text {
 	font-size: 16px;
 	font-weight: 600;
-	color: #F5EFF7;
+	color: #CAC4D0;
 }
 </style>

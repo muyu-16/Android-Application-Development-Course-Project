@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useChipStore } from '@/stores/chip'
 
@@ -173,23 +173,26 @@ function handleCustom() {
 	width: 48px;
 	height: 48px;
 	border-radius: 50%;
-	background: rgba(255,255,255,0.65);
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.3);
-	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	transition: transform 0.2s;
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.25s ease;
 }
 
-.nav-avatar:active { transform: scale(0.93); }
+.nav-avatar:active {
+	transform: scale(0.93);
+	box-shadow: 0 2px 8px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
+}
 
 .nav-avatar .material-icons {
 	font-size: 24px;
-	color: var(--clr-accent);
+	color: rgba(103, 80, 164, 1);
 }
 
 /* ══════ 网格 ══════ */
@@ -218,14 +221,17 @@ function handleCustom() {
 	gap: 12px;
 	cursor: pointer;
 	overflow: hidden;
-	background: rgba(255, 255, 255, 0.65);
-	backdrop-filter: blur(24px) saturate(180%);
-	-webkit-backdrop-filter: blur(24px) saturate(180%);
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-	transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s;
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 20px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
+	transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s, background 0.25s ease;
 	animation: card-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 	animation-delay: var(--delay);
+}
+.game-card:hover {
+	box-shadow: 0 6px 24px rgba(31, 28, 48, 0.15), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .game-card::before {
 	content: '';
@@ -279,8 +285,11 @@ function handleCustom() {
 }
 
 .card-icon-wrap.add {
-	background: var(--clr-bg-secondary);
-	border: 1.5px dashed var(--clr-border);
+	background: rgba(255, 255, 255, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1.5px dashed rgba(31, 28, 48, 0.25);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 .card-icon-wrap.add .card-icon {
@@ -322,11 +331,11 @@ function handleCustom() {
 	padding-bottom: var(--safe-area-bottom);
 	display: flex;
 	align-items: center;
-	background: rgba(255, 255, 255, 0.7);
+	background: rgba(255, 255, 255, 0.75);
 	backdrop-filter: blur(24px) saturate(180%);
 	-webkit-backdrop-filter: blur(24px) saturate(180%);
-	border-top: 1px solid rgba(255, 255, 255, 0.6);
-	box-shadow: 0 -2px 20px rgba(0,0,0,0.04);
+	border-top: 1px solid rgba(255,255,255,0.55);
+	box-shadow: 0 -4px 20px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.7);
 	z-index: 50;
 }
 
@@ -363,7 +372,10 @@ function handleCustom() {
 }
 
 .tab-item.active .tab-icon-wrap {
-	background: var(--clr-accent);
+	background: rgba(103, 80, 164, 0.92);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 .tab-icon {
@@ -373,7 +385,7 @@ function handleCustom() {
 }
 
 .tab-item.active .tab-icon {
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
 }
 
 .tab-label {
@@ -396,6 +408,7 @@ function handleCustom() {
 	width: 20px;
 	height: 4px;
 	border-radius: 2px;
-	background: var(--clr-accent);
+	background: rgba(103, 80, 164, 0.92);
+	box-shadow: 0 2px 8px rgba(103, 80, 164, 0.35);
 }
 </style>

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useQuestionStore } from '@/stores/questions'
 
@@ -453,8 +453,12 @@ const sliderBg = computed(() => {
 }
 .segmented {
 	display: flex;
-	background: var(--clr-bg-secondary);
-	border-radius: var(--rd-pill);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+	border-radius: 999px;
 	padding: 3px;
 	position: relative;
 }
@@ -462,7 +466,7 @@ const sliderBg = computed(() => {
 	flex: 1;
 	padding: 8px 0;
 	text-align: center;
-	border-radius: var(--rd-pill);
+	border-radius: 999px;
 	font-size: var(--fs-label);
 	font-weight: 600;
 	color: var(--clr-text-secondary);
@@ -471,15 +475,19 @@ const sliderBg = computed(() => {
 	cursor: pointer;
 }
 .seg-item.active {
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
 }
 .seg-indicator {
 	position: absolute;
 	top: 3px; left: 3px;
 	width: calc(50% - 3px);
 	height: calc(100% - 6px);
-	background: var(--clr-accent);
-	border-radius: var(--rd-pill);
+	background: rgba(103, 80, 164, 0.92);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(103, 80, 164, 1);
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+	border-radius: 999px;
 	transition: transform 0.3s var(--ease-spring);
 	z-index: 0;
 }
@@ -706,7 +714,16 @@ const sliderBg = computed(() => {
 }
 .btn-skip {
 	padding: 10px 16px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.70);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.btn-skip:active { transform: scale(0.96); }
 .btn-skip text {
 	font-size: var(--fs-body);
 	color: var(--clr-text-secondary);
@@ -716,11 +733,18 @@ const sliderBg = computed(() => {
 	width: 36px;
 	height: 36px;
 	border-radius: 50%;
-	background: var(--clr-bg-secondary);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.btn-custom:active { transform: scale(0.94); }
 .btn-custom .material-icons {
 	font-size: 20px;
 	color: var(--clr-text-secondary);
@@ -728,23 +752,27 @@ const sliderBg = computed(() => {
 
 .btn-done {
 	padding: 10px 24px;
-	border-radius: var(--rd-pill) !important;
+	border-radius: 999px;
 	display: flex;
 	align-items: center;
 	gap: var(--sp-2);
 	cursor: pointer;
-	transition: all 0.2s var(--ease-spring);
-	background: var(--clr-bg-secondary) !important;
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, box-shadow 0.25s;
+	background: rgba(103, 80, 164, 0.92);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(103, 80, 164, 1);
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
-.btn-done:active { transform: scale(0.96); }
+.btn-done:active { transform: scale(0.96); background: rgba(82, 64, 136, 0.95); }
 .btn-done .material-icons {
 	font-size: 20px;
-	color: var(--clr-accent);
+	color: #FFFFFF;
 }
 .btn-done text {
 	font-size: var(--fs-body);
 	font-weight: 700;
-	color: var(--clr-accent);
+	color: #FFFFFF;
 }
 
 /* ====== 自定义输入面板 ====== */
@@ -760,24 +788,34 @@ const sliderBg = computed(() => {
 }
 .custom-input {
 	flex: 1;
-	background: var(--clr-surface);
-	border: 1px solid var(--clr-border);
-	border-radius: var(--rd-button);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	border-radius: 16px;
 	padding: 10px 14px;
 	font-size: var(--fs-label);
 	color: var(--clr-text-primary);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .custom-add {
 	width: 44px;
 	height: 44px;
-	background: var(--clr-accent);
+	background: rgba(103, 80, 164, 0.92);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(103, 80, 164, 1);
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
+	cursor: pointer;
 }
+.custom-add:active { transform: scale(0.94); background: rgba(82, 64, 136, 0.95); }
 .custom-add .material-icons {
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
 	font-size: 22px;
 }
 
@@ -797,11 +835,16 @@ const sliderBg = computed(() => {
 .wheel-overlay {
 	width: 320px;
 	padding: var(--sp-5);
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.55);
+	border-radius: 28px !important;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: var(--sp-4);
-	border-radius: 28px !important;
+	box-shadow: 0 8px 32px rgba(31, 28, 48, 0.18), inset 0 1px 0 rgba(255,255,255,0.7);
 	animation: spring-pop 0.35s var(--ease-bounce);
 }
 .wheel-title {
@@ -854,8 +897,11 @@ const sliderBg = computed(() => {
 	width: 38px;
 	height: 38px;
 	border-radius: 50%;
-	background: var(--clr-surface);
-	border: 2px solid var(--clr-border);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -863,9 +909,11 @@ const sliderBg = computed(() => {
 }
 .wheel-avatar.selected {
 	border-color: var(--clr-gold);
-	background: rgba(255,215,64,0.2);
+	background: rgba(255,215,64,0.25);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
 	transform: scale(1.15);
-	box-shadow: 0 0 16px rgba(255,215,64,0.4);
+	box-shadow: 0 0 16px rgba(255,215,64,0.45), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .wheel-avatar .material-icons {
 	font-size: 18px;
@@ -889,27 +937,36 @@ const sliderBg = computed(() => {
 .wheel-btn {
 	flex: 1;
 	padding: 10px;
-	border-radius: var(--rd-button);
+	border-radius: 16px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
 	cursor: pointer;
-	transition: all 0.2s var(--ease-spring);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, box-shadow 0.25s;
 }
 .wheel-btn:active { transform: scale(0.96); }
 .wheel-btn.spin {
-	background: var(--clr-accent);
+	background: rgba(103, 80, 164, 0.92);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(103, 80, 164, 1);
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
+.wheel-btn.spin:active { background: rgba(82, 64, 136, 0.95); }
 .wheel-btn.spin .material-icons,
 .wheel-btn.spin text {
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
 	font-size: 18px;
 	font-weight: 700;
 }
-.wheel-btn.spin.disabled { opacity: 0.6; }
+.wheel-btn.spin.disabled { opacity: 0.55; }
 .wheel-btn.close {
-	background: var(--clr-bg-secondary);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .wheel-btn.close text {
 	font-size: var(--fs-label);

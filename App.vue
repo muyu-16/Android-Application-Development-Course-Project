@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { onLaunch } from '@dcloudio/uni-app'
 
 onLaunch(() => {
@@ -268,6 +268,112 @@ page {
 	background: rgba(30,27,35,0.20);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   glass-card —— 统一玻璃态按钮/卡片外观
+   · 所有带交互的按钮组件（含 chip / toast / action-btn / fab 等）
+   · 统一背景模糊 + 半透明背景 + 细边框 + 内外阴影
+   · 状态: hover / active / disabled / primary
+   ══════════════════════════════════════════════════════════════ */
+.glass-card {
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255, 255, 255, 0.45);
+	box-shadow:
+		0 4px 16px rgba(31, 28, 48, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.glass-card-strong {
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	box-shadow:
+		0 8px 24px rgba(31, 28, 48, 0.10),
+		inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* 暗色主题下的玻璃态（全局生效） */
+[data-theme="dark"] .glass-card {
+	background: rgba(30, 27, 35, 0.55);
+	border-color: rgba(255, 255, 255, 0.10);
+	box-shadow:
+		0 4px 16px rgba(0, 0, 0, 0.35),
+		inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .glass-card-strong {
+	background: rgba(30, 27, 35, 0.78);
+	border-color: rgba(255, 255, 255, 0.14);
+	box-shadow:
+		0 8px 24px rgba(0, 0, 0, 0.45),
+		inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* 玻璃态按钮状态（hover / active / disabled）
+   —— 在按钮容器上同时加 glass-card 与 gbtn / gbtn-primary 即可 */
+.gbtn {
+	transition:
+		background 0.25s ease,
+		transform 0.15s var(--ease-spring),
+		box-shadow 0.25s ease,
+		backdrop-filter 0.25s ease;
+	cursor: pointer;
+}
+.gbtn:hover {
+	backdrop-filter: blur(18px) saturate(200%);
+	-webkit-backdrop-filter: blur(18px) saturate(200%);
+	box-shadow:
+		0 6px 24px rgba(31, 28, 48, 0.12),
+		inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+.gbtn:active {
+	transform: scale(0.96);
+	backdrop-filter: blur(12px) saturate(220%);
+	-webkit-backdrop-filter: blur(12px) saturate(220%);
+	box-shadow:
+		0 2px 8px rgba(31, 28, 48, 0.14),
+		inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.gbtn:disabled,
+.gbtn.is-disabled {
+	opacity: 0.45;
+	pointer-events: none;
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+}
+
+/* 主色按钮（accent 色，文字对比度达标） */
+.gbtn-primary {
+	background: rgba(103, 80, 164, 0.92);
+	border: 1px solid rgba(103, 80, 164, 1);
+	box-shadow:
+		0 4px 20px rgba(103, 80, 164, 0.35),
+		inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.gbtn-primary text,
+.gbtn-primary .gbtn-label {
+	color: #FFFFFF !important;
+}
+.gbtn-primary:hover {
+	background: rgba(103, 80, 164, 0.96);
+}
+.gbtn-primary:active {
+	background: rgba(82, 64, 136, 0.95);
+	box-shadow:
+		0 2px 8px rgba(82, 64, 136, 0.4),
+		inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* 暗色主题下的主色按钮（浅色文字在深紫背景，~10:1 对比度） */
+[data-theme="dark"] .gbtn-primary {
+	background: rgba(208, 188, 255, 0.22);
+	border-color: rgba(208, 188, 255, 0.55);
+}
+[data-theme="dark"] .gbtn-primary text,
+[data-theme="dark"] .gbtn-primary .gbtn-label {
+	color: #E0CFFF !important;
+}
+
 /* backdrop-filter 降级 */
 @supports not (backdrop-filter: blur(1px)) {
 	.g1-glass::before { background: rgba(255,255,255,0.85) !important; backdrop-filter: none !important; }
@@ -276,6 +382,10 @@ page {
 	[data-theme="dark"] .g1-glass::before { background: rgba(30,27,35,0.85) !important; }
 	[data-theme="dark"] .g2-glass::before { background: rgba(30,27,35,0.92) !important; }
 	[data-theme="dark"] .g3-glass::before { background: rgba(30,27,35,0.96) !important; }
+	.glass-card { background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: none !important; }
+	.glass-card-strong { background: rgba(255, 255, 255, 0.98) !important; backdrop-filter: none !important; }
+	[data-theme="dark"] .glass-card { background: rgba(30, 27, 35, 0.95) !important; }
+	[data-theme="dark"] .glass-card-strong { background: rgba(30, 27, 35, 0.98) !important; }
 }
 
 /* ══════════════════════════════════════════════════════════════

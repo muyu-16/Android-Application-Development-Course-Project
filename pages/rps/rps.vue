@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed } from 'vue'
 
 // 回合规则
@@ -392,22 +392,32 @@ function getComputerCardClass() {
 /* 分段器 */
 .segmented {
 	display: flex;
-	background: var(--clr-bg-secondary);
-	border-radius: var(--rd-pill);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+	border-radius: 999px;
 	padding: 2px;
 	gap: 2px;
 }
 .seg-item {
 	padding: 6px 12px;
-	border-radius: var(--rd-pill);
+	border-radius: 999px;
 	font-size: 12px;
 	font-weight: 600;
 	color: var(--clr-text-secondary);
-	transition: all 0.25s var(--ease-spring);
+	transition: background 0.25s ease, transform 0.15s cubic-bezier(0.2,0.8,0.2,1);
+	cursor: pointer;
 }
+.seg-item:active { transform: scale(0.96); }
 .seg-item.active {
-	background: var(--clr-surface);
-	box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+	background: rgba(103, 80, 164, 0.92);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(103, 80, 164, 1);
+	color: #FFFFFF;
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 /* 比赛状态 */
@@ -455,10 +465,18 @@ function getComputerCardClass() {
 }
 
 .player-card {
-	background: rgba(103, 80, 164, 0.1) !important;
+	background: rgba(103, 80, 164, 0.12) !important;
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.55);
+	box-shadow: 0 4px 16px rgba(103, 80, 164, 0.18), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .computer-card {
-	background: rgba(233, 30, 99, 0.08) !important;
+	background: rgba(233, 30, 99, 0.10) !important;
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.55);
+	box-shadow: 0 4px 16px rgba(233, 30, 99, 0.18), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 /* 获胜 */
@@ -510,7 +528,11 @@ function getComputerCardClass() {
 	width: 36px;
 	height: 36px;
 	border-radius: 50%;
-	background: rgba(255,255,255,0.6);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -530,8 +552,12 @@ function getComputerCardClass() {
 /* 分数 chip */
 .chip-score {
 	padding: 1px 10px;
-	border-radius: var(--rd-pill);
-	background: var(--clr-surface);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .chip-text {
 	font-size: 11px;
@@ -591,7 +617,11 @@ function getComputerCardClass() {
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
-	background: var(--clr-surface);
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.55);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.7);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -670,23 +700,35 @@ function getComputerCardClass() {
 	align-items: center;
 	gap: 8px;
 	padding: 16px 12px 14px;
-	border-radius: var(--rd-pill);
-	background: var(--clr-surface);
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	transition: all 0.2s var(--ease-spring);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.55);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.7);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, box-shadow 0.25s ease;
 	cursor: pointer;
 	min-height: 72px;
+}
+.action-btn:hover {
+	box-shadow: 0 6px 24px rgba(31, 28, 48, 0.15), inset 0 1px 0 rgba(255,255,255,0.8);
 }
 .action-btn:active {
 	transform: scale(0.94);
 }
 .action-btn.pressed {
 	transform: scale(0.94);
-	background: rgba(103, 80, 164, 0.12);
+	background: rgba(103, 80, 164, 0.15);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(103, 80, 164, 0.55);
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .action-btn.disabled {
 	opacity: 0.45;
 	pointer-events: none;
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
 }
 
 .btn-icon {
@@ -704,7 +746,7 @@ function getComputerCardClass() {
 .modal-mask {
 	position: fixed;
 	inset: 0;
-	background: rgba(0,0,0,0.4);
+	background: rgba(0,0,0,0.45);
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
 	display: flex;
@@ -716,6 +758,12 @@ function getComputerCardClass() {
 .modal-glass {
 	width: 300px;
 	padding: var(--sp-6);
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(24px) saturate(180%);
+	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.55);
+	border-radius: 24px;
+	box-shadow: 0 8px 32px rgba(31, 28, 48, 0.20), inset 0 1px 0 rgba(255,255,255,0.8);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -745,25 +793,32 @@ function getComputerCardClass() {
 }
 .modal-btn {
 	padding: 12px;
-	border-radius: var(--rd-2);
+	border-radius: 999px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	transition: all 0.2s var(--ease-spring);
+	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, box-shadow 0.25s ease;
 }
 .modal-btn:active { transform: scale(0.97); }
 .modal-btn.primary {
-	background: var(--clr-accent);
+	background: rgba(103, 80, 164, 0.92);
+	backdrop-filter: blur(14px) saturate(200%);
+	-webkit-backdrop-filter: blur(14px) saturate(200%);
+	border: 1px solid rgba(103, 80, 164, 1);
+	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .modal-btn.primary text {
 	font-size: var(--fs-body);
 	font-weight: 700;
-	color: var(--clr-accent-on);
+	color: #FFFFFF;
 }
 .modal-btn.secondary {
-	background: var(--clr-bg-secondary);
-	border: 1px solid rgba(255,255,255,0.3);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .modal-btn.secondary text {
 	font-size: var(--fs-body);
