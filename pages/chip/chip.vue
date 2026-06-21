@@ -1,5 +1,6 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref } from 'vue'
+import NavBar from '@/components/NavBar.vue'
 import { useChipStore } from '@/stores/chip'
 
 const store = useChipStore()
@@ -90,13 +91,7 @@ function formatTime(ts) {
 <template>
 	<view class="container">
 		<!-- 导航栏 -->
-		<view class="chip-nav">
-			<view class="nav-left">
-				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
-				<text class="chip-title">筹码</text>
-			</view>
-			<view class="nav-right"></view>
-		</view>
+		<NavBar title="筹码" />
 		<view class="hero-card" :class="{ expanded: heroExpanded }" @tap="toggleHero">
 			<view class="hero-inner">
 				<view class="hero-top">
@@ -302,36 +297,6 @@ function formatTime(ts) {
 
 <style scoped>
 /* ============================================================
-   导航栏
-   ============================================================ */
-.chip-nav {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding-top: 12px;
-	margin-bottom: 20px;
-}
-.chip-nav .nav-left { display: flex; align-items: center; gap: 12px; }
-.chip-nav .nav-back {
-	font-size: 22px;
-	color: #000000;
-	padding: 4px;
-	transition: color 0.2s, opacity 0.2s, transform 0.15s;
-	cursor: pointer;
-}
-.chip-nav .nav-back:hover { color: #000000; opacity: 0.75; }
-.chip-nav .nav-back:active { color: #000000; opacity: 0.5; transform: scale(0.92); }
-.chip-title {
-	font-size: 22px;
-	font-weight: 700;
-	color: #000000;
-	transition: color 0.2s;
-}
-.chip-title:hover { color: #000000; opacity: 0.85; }
-.chip-title:active { color: #000000; opacity: 0.6; }
-.chip-nav .nav-right { display: flex; align-items: center; gap: 8px; }
-
-/* ============================================================
    基础布局
    ============================================================ */
 .container {
@@ -372,33 +337,24 @@ function formatTime(ts) {
 .hero-sub-label {
 	font-size: 13px;
 	font-weight: 600;
-	color: #000000;
+	color: rgba(255, 255, 255, 0.85);
 	letter-spacing: 0.5px;
 	margin-bottom: 4px;
-	transition: color 0.2s;
 }
-.hero-sub-label:hover { color: #000000; opacity: 0.85; }
-.hero-sub-label:active { color: #000000; opacity: 0.6; }
 
 .hero-number {
 	font-size: 48px;
 	font-weight: 700;
-	color: #000000;
+	color: #FFFFFF;
 	font-variant-numeric: tabular-nums;
 	line-height: 1.1;
 	margin-bottom: 6px;
-	transition: color 0.2s;
 }
-.hero-number:hover { color: #000000; opacity: 0.85; }
-.hero-number:active { color: #000000; opacity: 0.6; }
 
 .hero-meta {
 	font-size: 13px;
-	color: #000000;
-	transition: color 0.2s;
+	color: rgba(255, 255, 255, 0.7);
 }
-.hero-meta:hover { color: #000000; opacity: 0.85; }
-.hero-meta:active { color: #000000; opacity: 0.6; }
 
 .hero-divider {
 	height: 1px;
@@ -441,7 +397,7 @@ function formatTime(ts) {
 .indicator-dot.expanded {
 	width: 20px;
 	border-radius: 3px;
-	background: #D0BCFF;
+	background: var(--clr-accent);
 }
 
 /* ============================================================
@@ -472,19 +428,12 @@ function formatTime(ts) {
 .tab-item text {
 	font-size: 14px;
 	font-weight: 600;
-	color: #000000;
-	transition: color 0.2s, opacity 0.2s;
+	color: var(--clr-text-secondary);
 }
-
-.tab-item:hover text { color: #000000; opacity: 0.75; }
-.tab-item:active text { color: #000000; opacity: 0.5; }
 
 .tab-item.active text {
-	color: #000000;
+	color: var(--clr-text-primary);
 }
-
-.tab-item.active:hover text { color: #000000; opacity: 0.85; }
-.tab-item.active:active text { color: #000000; opacity: 0.6; }
 
 .tab-indicator {
 	position: absolute;
@@ -748,7 +697,7 @@ function formatTime(ts) {
 	-webkit-backdrop-filter: blur(14px) saturate(180%);
 	border: 1px solid rgba(255,255,255,0.10);
 	box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-	color: #F5EFF7;
+	color: var(--clr-text-primary);
 	font-size: 14px;
 	font-weight: 600;
 	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease;
@@ -762,7 +711,7 @@ function formatTime(ts) {
 	-webkit-backdrop-filter: blur(14px) saturate(200%);
 	border: 1px solid rgba(208,188,255,0.55);
 	box-shadow: 0 2px 12px rgba(208,188,255,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
-	color: #EADDFF;
+	color: var(--clr-accent);
 	font-weight: 700;
 }
 
@@ -787,7 +736,7 @@ function formatTime(ts) {
 	border-radius: 16px;
 	padding: 12px 16px;
 	font-size: 14px;
-	color: #F5EFF7;
+	color: var(--clr-text-primary);
 	width: 100%;
 	box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 }
@@ -814,7 +763,7 @@ function formatTime(ts) {
 .sheet-btn.primary text {
 	font-size: 16px;
 	font-weight: 700;
-	color: #EADDFF;
+	color: var(--clr-accent);
 }
 
 .sheet-btn.secondary {
@@ -827,6 +776,6 @@ function formatTime(ts) {
 .sheet-btn.secondary text {
 	font-size: 16px;
 	font-weight: 600;
-	color: #CAC4D0;
+	color: var(--clr-text-secondary);
 }
 </style>

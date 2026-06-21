@@ -1,5 +1,6 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed } from 'vue'
+import NavBar from '@/components/NavBar.vue'
 
 // 回合规则
 const choices = [
@@ -184,12 +185,8 @@ function getComputerCardClass() {
 		</view>
 
 		<!-- 导航栏 -->
-		<view class="nav-bar">
-			<view class="nav-left">
-				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
-				<text class="nav-title">猜拳</text>
-			</view>
-			<view class="nav-right">
+		<NavBar title="猜拳">
+			<template #right>
 				<view class="segmented">
 					<view
 						v-for="mode in matchModes"
@@ -201,8 +198,8 @@ function getComputerCardClass() {
 						<text>{{ mode.label }}</text>
 					</view>
 				</view>
-			</view>
-		</view>
+			</template>
+		</NavBar>
 
 		<!-- 比赛状态 -->
 		<view class="match-status glass-card">
@@ -359,36 +356,6 @@ function getComputerCardClass() {
 	top: 40%; left: 50%;
 }
 
-/* 导航栏 */
-.nav-bar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding-top: 12px;
-	margin-bottom: 20px;
-	position: relative;
-	z-index: 2;
-}
-.nav-left {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-}
-.nav-back {
-	font-size: 22px;
-	color: #1C1B1F;
-	padding: 4px;
-}
-.nav-title {
-	font-size: 22px;
-	font-weight: 700;
-	color: #1C1B1F;
-}
-.nav-right {
-	display: flex;
-	align-items: center;
-}
-
 /* 分段器 */
 .segmented {
 	display: flex;
@@ -416,7 +383,7 @@ function getComputerCardClass() {
 	backdrop-filter: blur(14px) saturate(200%);
 	-webkit-backdrop-filter: blur(14px) saturate(200%);
 	border: 1px solid rgba(103, 80, 164, 1);
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
@@ -811,7 +778,7 @@ function getComputerCardClass() {
 .modal-btn.primary text {
 	font-size: var(--fs-body);
 	font-weight: 700;
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 }
 .modal-btn.secondary {
 	background: rgba(255, 255, 255, 0.72);

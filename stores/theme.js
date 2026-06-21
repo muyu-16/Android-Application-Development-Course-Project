@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const STORAGE_KEY = 'partyglass_theme'
 
@@ -17,19 +17,24 @@ export const useThemeStore = defineStore('theme', () => {
 		} else if (themeMode.value === 'light') {
 			effectiveTheme.value = 'light'
 		} else {
-			effectiveTheme.value = 'light'
+			// system: 尝试获取系统主题偏好
+			try {
+				const sysInfo = uni.getSystemInfoSync()
+				effectiveTheme.value = sysInfo.theme || 'light'
+			} catch (e) {
+				effectiveTheme.value = 'light'
+			}
 		}
 		applyTheme(effectiveTheme.value)
 	}
 
 	function applyTheme(theme) {
-		// uni-app 中使用 wx 或 uni 设置页面背景
+		// 持久化用户选择
 		try {
 			uni.setStorageSync(STORAGE_KEY, themeMode.value)
 		} catch (e) {}
 
-		// 通过全局事件通知各页面切换主题
-		// 各页面通过监听 data-theme 属性变化来响应
+		// H5 端：通过 document.documentElement 设置 data-theme
 		try {
 			if (typeof document !== 'undefined' && document.documentElement) {
 				if (theme === 'dark') {
@@ -38,6 +43,20 @@ export const useThemeStore = defineStore('theme', () => {
 					document.documentElement.removeAttribute('data-theme')
 				}
 			}
+		} catch (e) {}
+
+		// App 端：通过 uni 事件通知各页面（Android/iOS 无 DOM）
+		uni.$emit('themeChanged', theme)
+
+		// App 端：设置导航栏和页面背景色
+		try {
+			const bgColor = theme === 'dark' ? '#141218' : '#FAF8FF'
+			const textColor = theme === 'dark' ? '#F5EFF7' : '#1C1B1F'
+			uni.setNavigationBarColor({
+				frontColor: textColor === '#F5EFF7' ? '#ffffff' : '#000000',
+				backgroundColor: bgColor,
+				animation: { duration: 300, timingFunc: 'easeIn' }
+			})
 		} catch (e) {}
 	}
 

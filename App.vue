@@ -1,8 +1,12 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { onLaunch } from '@dcloudio/uni-app'
+import { useThemeStore } from '@/stores/theme'
 
 onLaunch(() => {
 	console.log('PartyGlass App Launch')
+	// 确保主题在启动时正确应用
+	const theme = useThemeStore()
+	theme.resolveTheme()
 })
 </script>
 

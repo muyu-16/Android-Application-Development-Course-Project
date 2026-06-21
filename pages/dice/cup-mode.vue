@@ -3,30 +3,15 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
+import NavBar from '@/components/NavBar.vue'
 import { useDiceStore } from '@/stores/dice'
 import { useShake } from '@/composables/useShake'
 import { useVibrate } from '@/composables/useVibrate'
+import { DOTS, CUP_LAYOUTS } from '@/utils/dice-constants'
 
 const store = useDiceStore()
 const { cupCount } = storeToRefs(store) // 正确获取 Ref<number>，避免双层 ref 问题
 const vibrate = useVibrate()
-
-const DOTS = {
-	1: [[0, 0]],
-	2: [[-1, -1], [1, 1]],
-	3: [[-1, -1], [0, 0], [1, 1]],
-	4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
-	5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
-	6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]]
-}
-
-// 骰子散落布局（相对于圆心的偏移，单位 px）
-const LAYOUTS = {
-	3: [[0, -32], [-38, 24], [38, 24]],
-	4: [[-30, -30], [30, -30], [-30, 30], [30, 30]],
-	5: [[0, -44], [-42, -14], [-26, 36], [26, 36], [42, -14]],
-	6: [[-34, -38], [0, -42], [34, -38], [-34, 34], [0, 38], [34, 34]]
-}
 
 // 状态
 const values = ref(Array(cupCount.value).fill(1))
@@ -48,7 +33,7 @@ const genTilts = (n) => {
 tilts.value = genTilts(cupCount.value)
 
 // 骰子位置
-const positions = computed(() => LAYOUTS[cupCount.value] || LAYOUTS[3])
+const positions = computed(() => CUP_LAYOUTS[cupCount.value] || CUP_LAYOUTS[3])
 
 // 设置弹窗
 const showSettings = ref(false)
@@ -122,7 +107,7 @@ const diceStyle = (idx) => {
 	const pos = positions.value[idx] || [0, 0]
 	const tilt = tilts.value[idx] != null ? tilts.value[idx] : 0
 	return {
-		transform: 'translate(' + pos[0] + 'px, ' + pos[1] + 'px) rotate(' + tilt + 'deg)',
+		transform: 'translate(' + pos[0] + 'rpx, ' + pos[1] + 'rpx) rotate(' + tilt + 'deg)',
 		zIndex: idx + 1
 	}
 }
@@ -137,12 +122,13 @@ watch(cupCount, (n) => {
 <template>
 	<view class="cup-mode">
 		<!-- 顶部导航栏 -->
-		<view class="nav-bar">
-			<view class="nav-title">大话骰</view>
-			<view class="nav-menu" @tap="openSettings">
-				<text class="menu-icon">⋮</text>
-			</view>
-		</view>
+		<NavBar title="大话骰">
+			<template #right>
+				<view class="nav-menu glass-card gbtn" @tap="openSettings">
+					<text class="menu-icon">⋮</text>
+				</view>
+			</template>
+		</NavBar>
 
 		<!-- 骰盘区域 -->
 		<view class="cup-stage">
@@ -167,17 +153,17 @@ watch(cupCount, (n) => {
 		<!-- 操作区 -->
 		<view class="action-bar">
 			<view class="action-row">
-				<view class="btn-roll" @tap="roll">
+				<view class="btn-roll glass-card-strong gbtn" @tap="roll">
 					<text>{{ rolling ? '摇动中…' : '摇 骰' }}</text>
 				</view>
-				<view class="btn-reset" @tap="reset">
+				<view class="btn-reset glass-card gbtn" @tap="reset">
 					<text>重 摇</text>
 				</view>
 			</view>
 			<view class="hint" v-if="!rolling && !revealing">
 				<text>长按下方按钮查看点数</text>
 			</view>
-			<view class="btn-reveal" :class="{ active: revealing }"
+			<view class="btn-reveal glass-card gbtn" :class="{ active: revealing }"
 				@touchstart="onPressStart" @touchend="onPressEnd" @touchcancel="onPressEnd">
 				<text>{{ revealing ? '查看中…' : '长按掀开' }}</text>
 			</view>
@@ -206,51 +192,31 @@ watch(cupCount, (n) => {
 
 <style scoped>
 /* ══════════════════════════════════════
-   全局：纯黑背景，无冗余元素
+   全局：接入设计系统变量
    ══════════════════════════════════════ */
 .cup-mode {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	background: #000000;
+	background: var(--clr-bg-primary);
 	overflow: hidden;
 }
 
 /* ══════════════════════════════════════
-   顶部导航栏 — 模糊深色，占屏幕 8-10%
+   导航栏菜单按钮
    ══════════════════════════════════════ */
-.nav-bar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	height: 120rpx;
-	padding: 0 32rpx;
-	background: rgba(26, 26, 26, 0.50);
-	backdrop-filter: blur(20rpx);
-	-webkit-backdrop-filter: blur(20rpx);
-	flex-shrink: 0;
-}
-.nav-title {
-	font-size: 36rpx;
-	font-weight: 700;
-	color: #FFFFFF;
-	letter-spacing: 4rpx;
-}
 .nav-menu {
 	width: 72rpx;
 	height: 72rpx;
 	border-radius: 50%;
-	background: #FFD700;
-	border: 2px solid #000000;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
-.nav-menu:active { transform: scale(0.90); }
 .menu-icon {
 	font-size: 36rpx;
 	font-weight: 900;
-	color: #000000;
+	color: var(--clr-text-primary);
 	line-height: 1;
 }
 
@@ -265,12 +231,12 @@ watch(cupCount, (n) => {
 	padding: 20rpx 0;
 }
 
-/* 圆形骰盘 — 浅灰细线 */
+/* 圆形骰盘 */
 .circle-ring {
 	position: relative;
 	width: 560rpx;
 	height: 560rpx;
-	border: 2px solid #CCCCCC;
+	border: 2px solid var(--clr-border);
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
@@ -278,7 +244,7 @@ watch(cupCount, (n) => {
 	transition: border-color 0.35s ease;
 }
 .circle-ring.revealed {
-	border-color: #FFFFFF;
+	border-color: var(--clr-text-primary);
 }
 
 /* 晃动动画 */
@@ -304,7 +270,7 @@ watch(cupCount, (n) => {
 	height: 104rpx;
 	margin-left: -52rpx;
 	margin-top: -52rpx;
-	transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+	transition: transform 0.5s var(--ease-spring);
 }
 
 /* 骰面 — 纯白哑光 + 立体投影 */
@@ -312,26 +278,25 @@ watch(cupCount, (n) => {
 	position: relative;
 	width: 104rpx;
 	height: 104rpx;
-	background: #FFFFFF;
+	background: var(--clr-surface);
 	border-radius: 14rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	/* 立体感：底部厚度 + 环境阴影 + 顶部柔光 */
 	box-shadow:
-		0 6rpx 0 #E6E6E6,
-		0 8rpx 0 #D9D9D9,
-		0 12rpx 24rpx rgba(0, 0, 0, 0.45),
-		inset 0 2rpx 0 rgba(255, 255, 255, 1);
+		0 6rpx 0 rgba(0, 0, 0, 0.08),
+		0 8rpx 0 rgba(0, 0, 0, 0.05),
+		0 12rpx 24rpx rgba(0, 0, 0, 0.25),
+		inset 0 2rpx 0 rgba(255, 255, 255, 0.8);
 }
 
-/* 点数 — 纯黑正圆 */
+/* 点数 */
 .dice-dot {
 	position: absolute;
 	width: 14rpx;
 	height: 14rpx;
 	border-radius: 50%;
-	background: #000000;
+	background: var(--clr-text-primary);
 	transform: translate(-50%, -50%);
 }
 
@@ -339,23 +304,23 @@ watch(cupCount, (n) => {
 .dice-empty {
 	font-size: 36rpx;
 	font-weight: 700;
-	color: #CCCCCC;
+	color: var(--clr-text-disabled);
 }
 
-/* 骰子投影（底部椭圆暗影） */
+/* 骰子投影 */
 .dice-drop {
 	position: absolute;
 	bottom: -16rpx;
 	left: 10%;
 	right: 10%;
 	height: 16rpx;
-	background: radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, transparent 100%);
+	background: radial-gradient(ellipse at center, rgba(0,0,0,0.20) 0%, transparent 100%);
 	filter: blur(6rpx);
 	z-index: -1;
 }
 
 /* ══════════════════════════════════════
-   操作区 — 极简按钮
+   操作区 — 玻璃态按钮
    ══════════════════════════════════════ */
 .action-bar {
 	padding: 0 32rpx 32rpx;
@@ -372,25 +337,15 @@ watch(cupCount, (n) => {
 	text-align: center;
 	padding: 24rpx 0;
 	border-radius: 999rpx;
-	transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.btn-roll:active, .btn-reset:active { transform: scale(0.94); }
 .btn-roll text, .btn-reset text {
 	font-size: 28rpx;
 	font-weight: 700;
 	letter-spacing: 4rpx;
+	color: var(--clr-text-primary);
 }
 
-.btn-roll {
-	background: #FFFFFF;
-}
-.btn-roll text { color: #000000; }
-
-.btn-reset {
-	background: transparent;
-	border: 2px solid #333333;
-}
-.btn-reset text { color: #999999; }
+.btn-reset text { color: var(--clr-text-secondary); }
 
 .hint {
 	text-align: center;
@@ -398,7 +353,7 @@ watch(cupCount, (n) => {
 }
 .hint text {
 	font-size: 22rpx;
-	color: #666666;
+	color: var(--clr-text-disabled);
 	font-weight: 500;
 }
 
@@ -406,21 +361,15 @@ watch(cupCount, (n) => {
 	text-align: center;
 	padding: 28rpx 0;
 	border-radius: 999rpx;
-	border: 2px solid #333333;
 	transition: all 0.2s ease;
 }
 .btn-reveal text {
 	font-size: 28rpx;
 	font-weight: 700;
-	color: #666666;
+	color: var(--clr-text-secondary);
 	letter-spacing: 4rpx;
 }
-.btn-reveal:active { transform: scale(0.96); }
-.btn-reveal.active {
-	background: #FFFFFF;
-	border-color: #FFFFFF;
-}
-.btn-reveal.active text { color: #000000; }
+.btn-reveal.active text { color: var(--clr-accent); }
 
 /* ══════════════════════════════════════
    设置弹窗
@@ -438,8 +387,8 @@ watch(cupCount, (n) => {
 }
 .modal-panel {
 	width: 560rpx;
-	background: #1A1A1A;
-	border: 1px solid #333333;
+	background: var(--clr-bg-secondary);
+	border: 1px solid var(--clr-border);
 	border-radius: 32rpx;
 	padding: 40rpx;
 	display: flex;
@@ -449,12 +398,12 @@ watch(cupCount, (n) => {
 .modal-title {
 	font-size: 32rpx;
 	font-weight: 700;
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 	text-align: center;
 }
 .modal-desc {
 	font-size: 24rpx;
-	color: #666666;
+	color: var(--clr-text-secondary);
 	text-align: center;
 }
 .count-row {
@@ -466,15 +415,15 @@ watch(cupCount, (n) => {
 	padding: 20rpx 0;
 	text-align: center;
 	border-radius: 999rpx;
-	border: 2px solid #333333;
+	border: 2px solid var(--clr-border);
 	transition: all 0.2s;
 }
-.count-btn text { font-size: 28rpx; font-weight: 600; color: #999999; }
+.count-btn text { font-size: 28rpx; font-weight: 600; color: var(--clr-text-secondary); }
 .count-btn.active {
-	background: #FFFFFF;
-	border-color: #FFFFFF;
+	background: var(--clr-accent);
+	border-color: var(--clr-accent);
 }
-.count-btn.active text { color: #000000; }
+.count-btn.active text { color: var(--clr-accent-on); }
 .modal-actions {
 	display: flex;
 	gap: 12rpx;
@@ -485,8 +434,8 @@ watch(cupCount, (n) => {
 	border-radius: 999rpx;
 	text-align: center;
 }
-.modal-ok { background: #FFFFFF; }
-.modal-ok text { font-size: 26rpx; font-weight: 700; color: #000000; }
-.modal-cancel { border: 2px solid #333333; }
-.modal-cancel text { font-size: 26rpx; font-weight: 600; color: #999999; }
+.modal-ok { background: var(--clr-accent); }
+.modal-ok text { font-size: 26rpx; font-weight: 700; color: var(--clr-accent-on); }
+.modal-cancel { border: 2px solid var(--clr-border); }
+.modal-cancel text { font-size: 26rpx; font-weight: 600; color: var(--clr-text-secondary); }
 </style>

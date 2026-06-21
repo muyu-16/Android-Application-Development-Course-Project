@@ -1,8 +1,18 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useChipStore } from '@/stores/chip'
+import { useThemeStore } from '@/stores/theme'
 
 const chip = useChipStore()
+const theme = useThemeStore()
+
+// ══════ 状态栏高度 ══════
+const statusBarHeight = ref(0)
+
+onMounted(() => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
+})
 
 // ══════ 副标题池 ══════
 const taglines = [
@@ -28,10 +38,8 @@ const games = [
 	{ id: 'chip',    title: '筹码',   icon: '💰',   color: '#A5D6A7', page: '/pages/chip/chip' }
 ]
 
-const extraCard = { id: 'custom', title: '自定义', icon: '＋', color: '#E0E0E0' }
-
 // ══════ Tab ══════
-const activeTab = ref(0)
+const activeTab = ref(0)  // 0=首页, 1=我的
 
 function navigateTo(url) {
 	uni.navigateTo({ url })
@@ -40,25 +48,28 @@ function navigateTo(url) {
 function handleCustom() {
 	uni.showToast({ title: '敬请期待', icon: 'none' })
 }
+
+function toggleTheme() {
+	theme.toggle()
+}
 </script>
 
 <template>
 	<view class="container">
 		<!-- ══════ 自定义导航栏 ══════ -->
-		<view class="nav-bar">
+		<view class="nav-bar" :style="{ paddingTop: (statusBarHeight + 8) + 'px' }">
 			<view class="nav-left">
-				<text class="nav-title">今晚玩什么</text>
-				<text class="nav-subtitle">{{ tagline }}</text>
+				<text class="nav-title">{{ activeTab === 0 ? '今晚玩什么' : '我的' }}</text>
+				<text class="nav-subtitle" v-if="activeTab === 0">{{ tagline }}</text>
 			</view>
 			<view class="nav-avatar" @tap="navigateTo('/pages/chip/chip')">
 				<text class="material-icons">{{ user.avatar }}</text>
 			</view>
 		</view>
 
-		<!-- ══════ 游戏网格 ══════ -->
-		<view class="grid-wrapper">
+		<!-- ══════ 首页：游戏网格 ══════ -->
+		<view v-if="activeTab === 0" class="grid-wrapper">
 			<view class="grid">
-				<!-- 5 个游戏卡 -->
 				<view
 					v-for="(game, idx) in games"
 					:key="game.id"
@@ -74,7 +85,6 @@ function handleCustom() {
 					<text class="card-label">{{ game.title }}</text>
 				</view>
 
-				<!-- + 自定义卡 -->
 				<view
 					class="game-card add-card"
 					style="--delay: 0.48s; --tint: var(--clr-bg-secondary)"
@@ -89,22 +99,84 @@ function handleCustom() {
 			</view>
 		</view>
 
+		<!-- ══════ 我的：设置面板 ══════ -->
+		<view v-else class="profile-wrapper">
+			<!-- 用户卡片 -->
+			<view class="profile-card glass-card">
+				<view class="profile-avatar">
+					<text>{{ user.avatar }}</text>
+				</view>
+				<view class="profile-info">
+					<text class="profile-name">{{ user.name }}</text>
+					<text class="profile-desc">聚会达人</text>
+				</view>
+			</view>
+
+			<!-- 设置列表 -->
+			<view class="settings-group">
+				<view class="setting-item glass-card gbtn" @tap="toggleTheme">
+					<view class="setting-left">
+						<text class="setting-icon">{{ theme.effectiveTheme === 'dark' ? '🌙' : '☀️' }}</text>
+						<text class="setting-label">深色模式</text>
+					</view>
+					<text class="setting-value">{{ theme.effectiveTheme === 'dark' ? '已开启' : '已关闭' }}</text>
+				</view>
+
+				<view class="setting-item glass-card gbtn" @tap="navigateTo('/pages/chip/chip')">
+					<view class="setting-left">
+						<text class="setting-icon">💰</text>
+						<text class="setting-label">筹码管理</text>
+					</view>
+					<text class="setting-arrow">›</text>
+				</view>
+
+				<view class="setting-item glass-card gbtn" @tap="handleCustom">
+					<view class="setting-left">
+						<text class="setting-icon">📊</text>
+						<text class="setting-label">游戏统计</text>
+					</view>
+					<text class="setting-arrow">›</text>
+				</view>
+
+				<view class="setting-item glass-card gbtn" @tap="handleCustom">
+					<view class="setting-left">
+						<text class="setting-icon">⚙️</text>
+						<text class="setting-label">更多设置</text>
+					</view>
+					<text class="setting-arrow">›</text>
+				</view>
+			</view>
+
+			<!-- 关于 -->
+			<view class="about-section">
+				<text class="about-text">PartyGlass v1.0</text>
+				<text class="about-sub">让聚会更有趣</text>
+			</view>
+		</view>
+
 		<!-- ══════ 底部 Tab Bar ══════ -->
 		<view class="tab-bar">
 			<view
-				v-for="(tab, idx) in ['首页', '历史', '我的']"
-				:key="tab"
 				class="tab-item"
-				:class="{ active: activeTab === idx }"
-				@tap="activeTab = idx"
+				:class="{ active: activeTab === 0 }"
+				@tap="activeTab = 0"
 			>
 				<view class="tab-icon-wrap">
-					<text class="tab-icon">
-						{{ tab === '首页' ? '🏠' : tab === '历史' ? '🕐' : '👤' }}
-					</text>
+					<text class="tab-icon">🏠</text>
 				</view>
-				<text class="tab-label">{{ tab }}</text>
-				<view class="tab-indicator" v-if="activeTab === idx"></view>
+				<text class="tab-label">首页</text>
+				<view class="tab-indicator" v-if="activeTab === 0"></view>
+			</view>
+			<view
+				class="tab-item"
+				:class="{ active: activeTab === 1 }"
+				@tap="activeTab = 1"
+			>
+				<view class="tab-icon-wrap">
+					<text class="tab-icon">👤</text>
+				</view>
+				<text class="tab-label">我的</text>
+				<view class="tab-indicator" v-if="activeTab === 1"></view>
 			</view>
 		</view>
 	</view>
@@ -123,7 +195,6 @@ function handleCustom() {
 	background-color: var(--clr-bg-primary);
 }
 
-/* 底部渐变背景 */
 .container::after {
 	content: '';
 	position: fixed;
@@ -138,9 +209,8 @@ function handleCustom() {
 
 /* ══════ 导航栏 ══════ */
 .nav-bar {
-	height: 64px;
 	padding: 0 16px;
-	padding-top: calc(var(--safe-area-top) + 6px);
+	padding-top: 8px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -168,7 +238,6 @@ function handleCustom() {
 	margin-top: 2px;
 }
 
-/* 用户头像 */
 .nav-avatar {
 	width: 48px;
 	height: 48px;
@@ -182,17 +251,16 @@ function handleCustom() {
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.25s ease;
+	transition: transform 0.15s var(--ease-spring), box-shadow 0.25s ease;
 }
 
 .nav-avatar:active {
 	transform: scale(0.93);
-	box-shadow: 0 2px 8px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 .nav-avatar .material-icons {
 	font-size: 24px;
-	color: rgba(103, 80, 164, 1);
+	color: var(--clr-accent);
 }
 
 /* ══════ 网格 ══════ */
@@ -226,8 +294,8 @@ function handleCustom() {
 	-webkit-backdrop-filter: blur(20px) saturate(180%);
 	border: 1px solid rgba(255,255,255,0.45);
 	box-shadow: 0 4px 20px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
-	transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s, background 0.25s ease;
-	animation: card-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	transition: transform 0.2s var(--ease-spring), box-shadow 0.2s, background 0.25s ease;
+	animation: card-in 0.35s var(--ease-spring) both;
 	animation-delay: var(--delay);
 }
 .game-card:hover {
@@ -243,8 +311,6 @@ function handleCustom() {
 	background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
 	z-index: 1;
 }
-
-/* 卡片彩色遮罩 */
 .game-card::after {
 	content: '';
 	position: absolute;
@@ -309,7 +375,6 @@ function handleCustom() {
 	color: var(--clr-text-secondary);
 }
 
-/* 卡片入场动画 */
 @keyframes card-in {
 	from {
 		opacity: 0;
@@ -319,6 +384,115 @@ function handleCustom() {
 		opacity: 1;
 		transform: translateY(0) scale(1);
 	}
+}
+
+/* ══════ 我的：设置面板 ══════ */
+.profile-wrapper {
+	padding: var(--sp-5);
+	padding-top: var(--sp-3);
+	position: relative;
+	z-index: 1;
+}
+
+.profile-card {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 20px;
+	border-radius: 24px;
+	margin-bottom: 24px;
+}
+
+.profile-avatar {
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	background: rgba(103, 80, 164, 0.12);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 28px;
+	flex-shrink: 0;
+}
+
+.profile-info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.profile-name {
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--clr-text-primary);
+}
+
+.profile-desc {
+	font-size: 14px;
+	color: var(--clr-text-secondary);
+}
+
+.settings-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 32px;
+}
+
+.setting-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-radius: 16px;
+}
+
+.setting-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.setting-icon {
+	font-size: 22px;
+}
+
+.setting-label {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--clr-text-primary);
+}
+
+.setting-value {
+	font-size: 14px;
+	color: var(--clr-text-secondary);
+	font-weight: 500;
+}
+
+.setting-arrow {
+	font-size: 20px;
+	color: var(--clr-text-disabled);
+	font-weight: 300;
+}
+
+.about-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 24px 0;
+}
+
+.about-text {
+	font-size: 14px;
+	color: var(--clr-text-disabled);
+	font-weight: 500;
+}
+
+.about-sub {
+	font-size: 12px;
+	color: var(--clr-text-disabled);
+	opacity: 0.7;
 }
 
 /* ══════ 底部 Tab Bar ══════ */
@@ -399,7 +573,6 @@ function handleCustom() {
 	color: var(--clr-accent);
 }
 
-/* 底部彩色指示器 */
 .tab-indicator {
 	position: absolute;
 	bottom: 6px;

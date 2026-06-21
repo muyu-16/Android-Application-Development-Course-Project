@@ -1,5 +1,6 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import NavBar from '@/components/NavBar.vue'
 import { useQuestionStore } from '@/stores/questions'
 
 const store = useQuestionStore()
@@ -193,12 +194,7 @@ const sliderBg = computed(() => {
 		</view>
 
 		<!-- ====== 导航栏 ====== -->
-		<view class="nav-bar">
-			<view class="nav-left">
-				<text class="material-icons nav-back" @tap="uni.navigateBack()">←</text>
-				<text class="nav-title">真心话大冒险</text>
-			</view>
-		</view>
+		<NavBar title="真心话大冒险" />
 
 		<!-- ====== Segmented Control ====== -->
 		<view class="segmented-wrapper">
@@ -419,32 +415,6 @@ const sliderBg = computed(() => {
 	bottom: 60px; left: -60px;
 }
 
-/* ====== 导航栏 ====== */
-.nav-bar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding-top: 12px;
-	margin-bottom: 20px;
-	position: relative;
-	z-index: 2;
-}
-.nav-left {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-}
-.nav-back {
-	font-size: 22px;
-	color: #1C1B1F;
-	padding: 4px;
-}
-.nav-title {
-	font-size: 22px;
-	font-weight: 700;
-	color: #1C1B1F;
-}
-
 /* ====== Segmented Control ====== */
 .segmented-wrapper {
 	position: relative;
@@ -475,7 +445,7 @@ const sliderBg = computed(() => {
 	cursor: pointer;
 }
 .seg-item.active {
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 }
 .seg-indicator {
 	position: absolute;
@@ -767,12 +737,12 @@ const sliderBg = computed(() => {
 .btn-done:active { transform: scale(0.96); background: rgba(82, 64, 136, 0.95); }
 .btn-done .material-icons {
 	font-size: 20px;
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 }
 .btn-done text {
 	font-size: var(--fs-body);
 	font-weight: 700;
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 }
 
 /* ====== 自定义输入面板 ====== */
@@ -815,7 +785,7 @@ const sliderBg = computed(() => {
 }
 .custom-add:active { transform: scale(0.94); background: rgba(82, 64, 136, 0.95); }
 .custom-add .material-icons {
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 	font-size: 22px;
 }
 
@@ -920,7 +890,7 @@ const sliderBg = computed(() => {
 	color: var(--clr-text-secondary);
 }
 .wheel-avatar.selected .material-icons {
-	color: #FFD740;
+	color: var(--clr-gold);
 }
 .wheel-name {
 	font-size: 9px;
@@ -956,7 +926,7 @@ const sliderBg = computed(() => {
 .wheel-btn.spin:active { background: rgba(82, 64, 136, 0.95); }
 .wheel-btn.spin .material-icons,
 .wheel-btn.spin text {
-	color: #FFFFFF;
+	color: var(--clr-text-primary);
 	font-size: 18px;
 	font-weight: 700;
 }
