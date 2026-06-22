@@ -1,9 +1,11 @@
 // stores/dice.js
-// 骰子模块设置持久化：自由摇骰数量、大话骰数量、震动/音效开关
+// 骰子模块状态管理：骰型选择、数量、历史记录、反馈开关
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { rollDice } from '@/utils/dice-engine'
 
 const STORAGE_KEY = 'partyglass_dice'
+const MAX_HISTORY = 200
 
 function loadPersisted() {
 	try {
@@ -16,37 +18,43 @@ function loadPersisted() {
 export const useDiceStore = defineStore('dice', () => {
 	const saved = loadPersisted() || {}
 
-	// 自由摇骰：1-6，默认 1
-	const freeCount = ref(saved.freeCount || 1)
+	// ── 骰型与数量 ──
+	const selectedType = ref(saved.selectedType || 'D6')
+	const diceCount = ref(saved.diceCount || 1)
 
-	// 大话骰遮罩：3-6，默认 5
-	const cupCount = ref(saved.cupCount || 5)
-
-	// 反馈开关
+	// ── 反馈开关 ──
 	const vibrateEnabled = ref(saved.vibrateEnabled ?? true)
 	const soundEnabled = ref(saved.soundEnabled ?? false)
 
+	// ── 投掷历史 ──
+	const history = ref(saved.history || [])
+
+	// ── 持久化 ──
 	const persist = () => {
 		try {
 			uni.setStorageSync(STORAGE_KEY, JSON.stringify({
-				freeCount: freeCount.value,
-				cupCount: cupCount.value,
+				selectedType: selectedType.value,
+				diceCount: diceCount.value,
 				vibrateEnabled: vibrateEnabled.value,
-				soundEnabled: soundEnabled.value
+				soundEnabled: soundEnabled.value,
+				history: history.value.slice(0, MAX_HISTORY)
 			}))
 		} catch (e) {}
 	}
 
-	const setFreeCount = (n) => {
-		freeCount.value = Math.max(1, Math.min(6, n))
+	// ── 骰型切换 ──
+	const setSelectedType = (type) => {
+		selectedType.value = type
 		persist()
 	}
 
-	const setCupCount = (n) => {
-		cupCount.value = Math.max(3, Math.min(6, n))
+	// ── 数量调节 (1-20) ──
+	const setDiceCount = (n) => {
+		diceCount.value = Math.max(1, Math.min(20, n))
 		persist()
 	}
 
+	// ── 反馈开关 ──
 	const toggleVibrate = () => {
 		vibrateEnabled.value = !vibrateEnabled.value
 		persist()
@@ -57,14 +65,51 @@ export const useDiceStore = defineStore('dice', () => {
 		persist()
 	}
 
+	// ── 历史管理 ──
+	const addHistory = (record) => {
+		history.value.unshift(record)
+		if (history.value.length > MAX_HISTORY) {
+			history.value = history.value.slice(0, MAX_HISTORY)
+		}
+		persist()
+	}
+
+	const clearHistory = () => {
+		history.value = []
+		persist()
+	}
+
+	const getHistoryByType = (type) => {
+		if (!type || type === 'ALL') return history.value
+		return history.value.filter(r => r.diceType === type)
+	}
+
+	// ── 兼容旧代码 ──
+	const freeCount = computed(() => diceCount.value)
+	const cupCount = ref(saved.cupCount || 5)
+	const setFreeCount = (n) => setDiceCount(n)
+	const setCupCount = (n) => {
+		cupCount.value = Math.max(3, Math.min(6, n))
+		persist()
+	}
+
 	return {
-		freeCount,
-		cupCount,
+		selectedType,
+		diceCount,
 		vibrateEnabled,
 		soundEnabled,
-		setFreeCount,
-		setCupCount,
+		history,
+		setSelectedType,
+		setDiceCount,
 		toggleVibrate,
-		toggleSound
+		toggleSound,
+		addHistory,
+		clearHistory,
+		getHistoryByType,
+		// 兼容旧代码
+		freeCount,
+		cupCount,
+		setFreeCount,
+		setCupCount
 	}
 })

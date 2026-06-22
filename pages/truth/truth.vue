@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useQuestionStore } from '@/stores/questions'
@@ -105,8 +105,8 @@ function resetFlip() {
 
 // 加速度计 3D 倾斜监听
 function onAccelerometer(e) {
-	if (tiltTimer) cancelAnimationFrame(tiltTimer)
-	tiltTimer = requestAnimationFrame(() => {
+	if (tiltTimer) clearTimeout(tiltTimer)
+	tiltTimer = setTimeout(() => {
 		// uni-app 加速度计回调参数
 		const { x, y } = e
 		tiltX.value = Math.max(-5, Math.min(5, y * 3))

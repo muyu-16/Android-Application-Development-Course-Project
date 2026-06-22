@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 /**
  * 转盘页面 — 基于 vue-wheel-spinner 官方 Demo 视觉风格
  *
@@ -53,12 +53,11 @@ const showDrawer = ref(false)
 let animFrameId = null
 let lastTickSector = -1
 
-const raf = typeof requestAnimationFrame !== 'undefined'
-	? requestAnimationFrame
-	: (cb) => setTimeout(cb, 16)
-const caf = typeof cancelAnimationFrame !== 'undefined'
-	? cancelAnimationFrame
-	: clearTimeout
+// Android App 端 JS Framework 层无 requestAnimationFrame，需安全检测
+let _raf, _caf
+try { _raf = requestAnimationFrame; _caf = cancelAnimationFrame } catch(e) { _raf = null; _caf = null }
+const raf = _raf || ((cb) => setTimeout(cb, 16))
+const caf = _caf || clearTimeout
 
 /**
  * spinWheel(winnerIndex) — vue-wheel-spinner 核心 API
