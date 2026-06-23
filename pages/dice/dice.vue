@@ -1,5 +1,5 @@
 <!-- pages/dice/dice.vue -->
-<!-- 统一多面骰界面：D4~D100 全类型 + 投掷历史 -->
+<!-- 六面骰子（D6）专用界面 -->
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -9,34 +9,29 @@ import { useDiceRoll } from '@/composables/useDiceRoll'
 import { useShake } from '@/composables/useShake'
 import { useVibrate } from '@/composables/useVibrate'
 import { useThemeAware } from '@/composables/useThemeAware'
-import { DICE_TYPES, getDiceType, DOTS, CUBE_FACES } from '@/utils/dice-constants'
+import { getCubeFaces, getDotPositions } from '@/utils/dice-constants'
 
 const store = useDiceStore()
-const { selectedType, diceCount, vibrateEnabled, history } = storeToRefs(store)
+const { diceCount, vibrateEnabled, history } = storeToRefs(store)
 const vibrate = useVibrate()
 const { isDark } = useThemeAware()
 
-// 当前骰型定义
-const currentDice = computed(() => getDiceType(selectedType.value))
-const currentSides = computed(() => currentDice.value.sides)
+// 固定6面
+const currentSides = ref(6)
 
-// 3D Token 边缘层颜色（响应主题）
-const edgeColor = (e) => {
-	if (isDark.value) {
-		return 'rgb(' + (43 - e * 2) + ',' + (41 - e * 2) + ',' + (48 - e * 1) + ')'
-	}
-	return 'rgb(' + (224 - e * 3) + ',' + (220 - e * 3) + ',' + (232 - e * 2) + ')'
-}
-
-// 3D 支持检测
+// 3D 支持检测（uni-app 兼容）
 const supports3D = ref(true)
 onMounted(() => {
 	try {
-		if (typeof document !== 'undefined') {
-			const el = document.createElement('div')
-			el.style.transformStyle = 'preserve-3d'
-			supports3D.value = el.style.transformStyle === 'preserve-3d'
-		}
+		// #ifdef H5
+		const el = document.createElement('div')
+		el.style.transformStyle = 'preserve-3d'
+		supports3D.value = el.style.transformStyle === 'preserve-3d'
+		// #endif
+		// #ifndef H5
+		// App 端 WebView 默认支持 CSS 3D Transform
+		supports3D.value = true
+		// #endif
 	} catch (e) {
 		supports3D.value = false
 	}
@@ -44,8 +39,8 @@ onMounted(() => {
 
 // 摇骰逻辑
 const {
-	values, rolling, rotX, rotY, rotZ, trans, flipping, bouncing,
-	isD6, totalSum, maxVal, minVal,
+	values, rolling, rotX, rotY, trans, flipping, bouncing,
+	totalSum, maxVal, minVal,
 	roll: doRoll, syncCount
 } = useDiceRoll({
 	sides: currentSides,
@@ -53,13 +48,6 @@ const {
 	vibrateEnabled,
 	vibrate
 })
-
-// 骰型切换
-const selectType = (type) => {
-	if (rolling.value) return
-	store.setSelectedType(type)
-	if (vibrateEnabled.value) vibrate.tap()
-}
 
 // 数量调节
 const adjustCount = (delta) => {
@@ -78,7 +66,7 @@ const roll = () => {
 	if (result) {
 		store.addHistory({
 			id: Date.now(),
-			diceType: selectedType.value,
+			diceType: 'D6',
 			count: diceCount.value,
 			results: result.results,
 			sum: result.sum,
@@ -131,12 +119,29 @@ const gridCols = computed(() => {
 	if (n <= 6) return 3
 	return 4
 })
+
+// D6 自适应尺寸（根据骰子数量动态调整，解决3/6颗显示不下的问题）
+const d6Sizes = { small: 120, medium: 140, large: 160, xl: 200 }
+const diceSize = computed(() => {
+	const n = diceCount.value
+	if (n <= 2) return d6Sizes.xl      // 200rpx
+	if (n <= 4) return d6Sizes.large    // 160rpx
+	if (n <= 8) return d6Sizes.medium   // 140rpx
+	return d6Sizes.small                // 120rpx
+})
+
+// D6 相关衍生尺寸（跟随 diceSize 动态变化）
+const d6Half = computed(() => Math.floor(diceSize.value / 2))
+const dotSize = computed(() => Math.floor(diceSize.value * 0.16))   // ~32rpx at 200rpx, ~19rpx at 120rpx
+
+// 动态生成六面变换（translateZ 与 diceSize 联动，确保立方体几何正确）
+const cubeFaces = computed(() => getCubeFaces(d6Half.value))
 </script>
 
 <template>
 	<view class="dice-page">
 		<!-- 导航栏 -->
-		<NavBar title="骰子" :showBack="true">
+		<NavBar title="骰子">
 			<template #right>
 				<view class="nav-btn glass-card gbtn" @tap="openHistory">
 					<text class="nav-btn-icon">&#128203;</text>
@@ -144,79 +149,30 @@ const gridCols = computed(() => {
 			</template>
 		</NavBar>
 
-		<!-- 骰型选择器 -->
-		<scroll-view scroll-x class="type-scroll" :show-scrollbar="false">
-			<view class="type-bar">
-				<view v-for="dt in DICE_TYPES" :key="dt.label"
-					class="type-chip glass-card gbtn"
-					:class="{ active: selectedType === dt.label }"
-					@tap="selectType(dt.label)">
-					<text class="type-icon">{{ dt.icon }}</text>
-					<text class="type-label">{{ dt.label }}</text>
-				</view>
-			</view>
-		</scroll-view>
-
 		<!-- 骰子展示区 -->
 		<view class="dice-display">
 			<view class="dice-grid" :style="{ gridTemplateColumns: 'repeat(' + gridCols + ', 1fr)' }">
-				<!-- D6 3D 模式 -->
-				<template v-if="isD6 && supports3D">
-					<view v-for="(val, idx) in values" :key="idx" class="dice-3d"
-						:style="{ animation: bouncing[idx] }">
-						<view class="dice-cube"
-							:style="{ transform: 'rotateX(' + rotX[idx] + 'deg) rotateY(' + rotY[idx] + 'deg)', transition: trans[idx] }">
-							<view class="dice-back"></view>
-							<view v-for="(face, fi) in CUBE_FACES" :key="fi" class="dice-face"
-								:style="{ transform: face.transform }">
-								<view v-for="(pos, pi) in DOTS[face.num]" :key="pi" class="dice-dot"
-									:style="{ left: 'calc(50% + ' + pos[0] * 20 + 'px)', top: 'calc(50% + ' + pos[1] * 20 + 'px)' }"></view>
-							</view>
-							<view class="dice-flip-overlay" v-if="flipping[idx]">
-								<text class="dice-flip-num">{{ values[idx] }}</text>
-							</view>
+				<!-- D6 3D 骰子 -->
+				<view v-for="(val, idx) in values" :key="idx" class="dice-3d"
+					:style="{ width: diceSize + 'rpx', height: diceSize + 'rpx', perspective: diceSize * 8 + 'rpx', animation: bouncing[idx] }">
+					<view class="dice-cube"
+						:style="{ width: diceSize + 'rpx', height: diceSize + 'rpx', transform: 'rotateX(' + rotX[idx] + 'deg) rotateY(' + rotY[idx] + 'deg)', transition: trans[idx] }">
+						<!-- 背面底座 -->
+						<view class="dice-back"
+							:style="{ width: diceSize + 'rpx', height: diceSize + 'rpx', marginLeft: '-' + d6Half + 'rpx', marginTop: '-' + d6Half + 'rpx', background: isDark ? '#1C1A22' : '#E0E0E0' }"></view>
+						<!-- 六个骰面 -->
+						<view v-for="(face, fi) in cubeFaces" :key="fi" class="dice-face"
+							:style="{ width: diceSize + 'rpx', height: diceSize + 'rpx', transform: face.transform, background: isDark ? '#2A2830' : '#F5F5F7', boxShadow: isDark ? 'inset 0 0 0 2rpx rgba(255,255,255,0.06), inset 0 1rpx 0 rgba(255,255,255,0.08), inset 0 -1rpx 0 rgba(0,0,0,0.25)' : 'inset 0 0 0 1rpx #E0E0E0, inset 0 2rpx 0 rgba(255,255,255,1), inset 0 -1rpx 0 rgba(0,0,0,0.05)' }">
+							<view v-for="(pos, pi) in getDotPositions(face.num, diceSize)" :key="pi" class="dice-dot"
+								:style="{ left: pos[0] + 'rpx', top: pos[1] + 'rpx', width: dotSize + 'rpx', height: dotSize + 'rpx', background: isDark ? '#E8E6F0' : 'var(--clr-text-primary)', boxShadow: isDark ? 'inset 0 1rpx 2rpx rgba(0,0,0,0.4)' : 'inset 0 1rpx 2rpx rgba(0,0,0,0.15)' }"></view>
 						</view>
-						<view class="dice-shadow"></view>
-					</view>
-				</template>
-				<!-- 多面骰 3D Token 模式 / D6 降级模式 -->
-				<template v-else>
-					<view v-for="(val, idx) in values" :key="'p-' + idx" class="dice-3d-token"
-						:style="{ animation: bouncing[idx] }">
-						<view class="token-body"
-							:style="{
-								transform: 'rotateX(' + rotX[idx] + 'deg) rotateY(' + rotY[idx] + 'deg) rotateZ(' + rotZ[idx] + 'deg)',
-								transition: trans[idx]
-							}">
-							<!-- Front face -->
-							<view class="token-face token-front" :style="{
-								clipPath: currentDice.clipPath || 'none',
-								boxShadow: isDark
-									? 'inset 0 1rpx 0 rgba(255,255,255,0.12), inset 0 -1rpx 0 rgba(0,0,0,0.15)'
-									: 'inset 0 2rpx 0 rgba(255,255,255,0.85), inset 0 -1rpx 0 rgba(0,0,0,0.05)'
-							}">
-								<text class="token-num">{{ val || '?' }}</text>
-							</view>
-							<!-- Edge layers for 3D thickness (depth-driven gradient) -->
-							<view v-for="e in (currentDice.depth || 8)" :key="e" class="token-edge"
-								:style="{
-									transform: 'translateZ(-' + (e * 2) + 'rpx)',
-									clipPath: currentDice.clipPath || 'none',
-									opacity: 1 - (e - 1) / ((currentDice.depth || 8) + 2) * 0.35,
-									background: edgeColor(e)
-								}">
-							</view>
-							<!-- Back face -->
-							<view class="token-face token-back" :style="{
-								transform: 'translateZ(-' + ((currentDice.depth || 8) * 2) + 'rpx) rotateY(180deg)',
-								clipPath: currentDice.clipPath || 'none',
-								background: isDark ? '#1A1820' : '#D8D4E0'
-							}">
-							</view>
+						<!-- 翻转中数字遮罩 -->
+						<view class="dice-flip-overlay" v-if="flipping[idx]">
+							<text class="dice-flip-num" :style="{ fontSize: diceSize * 0.32 + 'rpx', color: isDark ? '#E8E6F0' : 'var(--clr-text-primary)' }">{{ values[idx] }}</text>
 						</view>
-						<view class="dice-shadow"></view>
 					</view>
-				</template>
+					<view class="dice-shadow" :style="{ bottom: '-' + Math.floor(diceSize * 0.08) + 'rpx', height: Math.floor(diceSize * 0.14) + 'rpx', background: 'radial-gradient(ellipse at center, ' + (isDark ? 'rgba(0,0,0,0.50)' : 'rgba(0,0,0,0.30)') + ' 0%, transparent 100%)' }"></view>
+				</view>
 			</view>
 		</view>
 
@@ -264,17 +220,12 @@ const gridCols = computed(() => {
 						<text>清空</text>
 					</view>
 				</view>
-				<!-- 筛选栏 -->
+				<!-- 筛选栏（仅保留全部/D6） -->
 				<scroll-view scroll-x class="filter-scroll" :show-scrollbar="false">
 					<view class="filter-bar">
 						<view class="filter-chip" :class="{ active: historyFilter === 'ALL' }"
 							@tap="historyFilter = 'ALL'">
 							<text>全部</text>
-						</view>
-						<view v-for="dt in DICE_TYPES" :key="dt.label"
-							class="filter-chip" :class="{ active: historyFilter === dt.label }"
-							@tap="historyFilter = dt.label">
-							<text>{{ dt.label }}</text>
 						</view>
 					</view>
 				</scroll-view>
@@ -307,12 +258,12 @@ const gridCols = computed(() => {
 
 <style scoped>
 .dice-page {
-	min-height: 100vh;
+	flex: 1;
 	background: var(--clr-bg-primary);
 	display: flex;
 	flex-direction: column;
 	padding: 0 16px;
-	padding-bottom: calc(var(--safe-area-bottom, 0px) + 24px);
+	padding-bottom: calc(var(--safe-area-bottom, 0px) + 64px + 24px);
 }
 
 /* ─── 导航栏按钮 ─── */
@@ -327,44 +278,6 @@ const gridCols = computed(() => {
 .nav-btn-icon {
 	font-size: 36rpx;
 	color: var(--clr-text-primary);
-}
-
-/* ─── 骰型选择器 ─── */
-.type-scroll {
-	flex-shrink: 0;
-	white-space: nowrap;
-	margin-bottom: 16rpx;
-}
-.type-bar {
-	display: inline-flex;
-	gap: 12rpx;
-	padding: 8rpx 0;
-}
-.type-chip {
-	display: inline-flex;
-	align-items: center;
-	gap: 6rpx;
-	padding: 14rpx 24rpx;
-	border-radius: 999rpx;
-	flex-shrink: 0;
-}
-.type-chip .type-icon {
-	font-size: 30rpx;
-	color: var(--clr-text-primary);
-}
-.type-chip .type-label {
-	font-size: 30rpx;
-	font-weight: 700;
-	color: var(--clr-text-primary);
-}
-.type-chip.active {
-	background: rgba(103, 80, 164, 0.15);
-	border-color: var(--clr-accent);
-}
-.type-chip.active .type-icon,
-.type-chip.active .type-label {
-	color: var(--clr-accent);
-	font-weight: 800;
 }
 
 /* ─── 骰子展示区 ─── */
@@ -385,16 +298,12 @@ const gridCols = computed(() => {
 	max-width: 720rpx;
 }
 
-/* D6 3D 骰子 */
+/* D6 3D 骰子（尺寸由内联style动态控制） */
 .dice-3d {
 	position: relative;
-	width: 110px;
-	height: 110px;
-	perspective: 900px;
+	perspective: 900rpx;
 }
 .dice-cube {
-	width: 110px;
-	height: 110px;
 	position: relative;
 	transform-style: preserve-3d;
 	-webkit-transform-style: preserve-3d;
@@ -403,42 +312,26 @@ const gridCols = computed(() => {
 .dice-back {
 	position: absolute;
 	left: 50%; top: 50%;
-	width: 56px; height: 56px;
-	margin-left: -28px; margin-top: -28px;
-	background: #E0E0E0;
-	border-radius: 4px;
+	border-radius: 8rpx;
 	transform: translateZ(0);
 	z-index: 0;
 }
 .dice-face {
 	position: absolute;
-	width: 110px;
-	height: 110px;
-	border-radius: 16px;
+	border-radius: 32rpx;
 	backface-visibility: hidden;
 	-webkit-backface-visibility: hidden;
-	background: #F5F5F7;
-	box-shadow:
-		inset 0 0 0 1px #E0E0E0,
-		inset 0 1px 0 rgba(255, 255, 255, 1),
-		inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 	transform-style: preserve-3d;
 	z-index: 1;
 }
 .dice-dot {
 	position: absolute;
-	width: 12px;
-	height: 12px;
 	border-radius: 50%;
-	background: var(--clr-text-primary);
 	transform: translate(-50%, -50%);
 }
 .dice-shadow {
 	position: absolute;
-	bottom: -10px;
 	left: 10%; right: 10%;
-	height: 16px;
-	background: radial-gradient(ellipse at center, rgba(0,0,0,0.30) 0%, transparent 100%);
 	filter: blur(6px);
 	z-index: -1;
 }
@@ -452,69 +345,15 @@ const gridCols = computed(() => {
 	pointer-events: none;
 }
 .dice-flip-num {
-	font-size: 36px;
 	font-weight: 900;
-	color: var(--clr-text-primary);
-	text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* 多面骰 3D Token */
-.dice-3d-token {
-	position: relative;
-	width: 180rpx;
-	height: 180rpx;
-	perspective: 1200rpx;
-}
-.token-body {
-	width: 180rpx;
-	height: 180rpx;
-	position: relative;
-	transform-style: preserve-3d;
-	-webkit-transform-style: preserve-3d;
-	will-change: transform;
-}
-.token-face {
-	position: absolute;
-	width: 180rpx;
-	height: 180rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	backface-visibility: hidden;
-	-webkit-backface-visibility: hidden;
-}
-.token-front {
-	background: var(--clr-surface);
-	border: 2rpx solid var(--clr-border);
-	border-radius: 16rpx;
-	z-index: 2;
-}
-.token-back {
-	border-radius: 16rpx;
-	z-index: 0;
-}
-.token-edge {
-	position: absolute;
-	width: 180rpx;
-	height: 180rpx;
-	border-radius: 14rpx;
-	backface-visibility: hidden;
-	-webkit-backface-visibility: hidden;
-}
-.token-num {
-	font-size: 64rpx;
-	font-weight: 900;
-	color: var(--clr-text-primary);
-	line-height: 1;
-	letter-spacing: -1rpx;
-	z-index: 3;
+	text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
 }
 
 @keyframes bounce-settle {
 	0% { transform: translateY(0); }
-	30% { transform: translateY(-18px); }
+	30% { transform: translateY(-18rpx); }
 	60% { transform: translateY(0); }
-	75% { transform: translateY(-6px); }
+	75% { transform: translateY(-6rpx); }
 	100% { transform: translateY(0); }
 }
 

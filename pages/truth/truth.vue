@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useQuestionStore } from '@/stores/questions'
@@ -382,10 +382,10 @@ const sliderBg = computed(() => {
 <style scoped>
 /* ====== 全局容器 ====== */
 .container {
-	min-height: 100vh;
-	padding: 16px;
-	padding-top: calc(var(--safe-area-top, 24px) + 20px);
-	padding-bottom: calc(var(--safe-area-bottom, 0px) + 20px);
+	flex: 1;
+	padding: 6px 10px;
+	padding-top: calc(var(--safe-area-top, 24px) + 4px);
+	padding-bottom: calc(var(--safe-area-bottom, 0px) + 64px + 4px);
 	background: linear-gradient(135deg, #FFF8E1 0%, #F3E5F5 50%, #FFF5F5 100%);
 	display: flex;
 	flex-direction: column;
@@ -419,7 +419,7 @@ const sliderBg = computed(() => {
 .segmented-wrapper {
 	position: relative;
 	z-index: 2;
-	margin-bottom: var(--sp-3);
+	margin-bottom: 4px;
 }
 .segmented {
 	display: flex;
@@ -476,8 +476,7 @@ const sliderBg = computed(() => {
 
 .card-3d {
 	width: 100%;
-	height: 56vh;
-	max-height: 460px;
+	flex: 1;
 	position: relative;
 	transition: transform 0.15s ease-out;
 	transform-style: preserve-3d;
@@ -495,7 +494,7 @@ const sliderBg = computed(() => {
 	-webkit-backface-visibility: hidden;
 	display: flex;
 	flex-direction: column;
-	padding: var(--sp-5);
+	padding: 8px 12px;
 }
 
 .card-front {
@@ -515,7 +514,7 @@ const sliderBg = computed(() => {
 	display: flex;
 	align-items: center;
 	gap: var(--sp-2);
-	margin-bottom: var(--sp-4);
+	margin-bottom: 2px;
 	background: var(--clr-surface);
 	align-self: flex-start;
 	padding: 4px 14px;
@@ -537,12 +536,12 @@ const sliderBg = computed(() => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: var(--sp-3) 0;
+	padding: 0;
 }
 .card-text {
-	font-size: 24px;
+	font-size: 22px;
 	font-weight: 700;
-	line-height: 1.7;
+	line-height: 1.5;
 	text-align: center;
 	color: var(--clr-text-primary);
 	padding: 0 4px;
@@ -605,7 +604,7 @@ const sliderBg = computed(() => {
 
 /* ====== 强度滑块 ====== */
 .slider-section {
-	margin: var(--sp-3) 0;
+	margin: 6px 0 2px;
 	position: relative;
 	z-index: 1;
 }
@@ -624,7 +623,7 @@ const sliderBg = computed(() => {
 	background: var(--clr-bg-secondary);
 	border-radius: 3px;
 	position: relative;
-	margin: 16px 0;
+	margin: 4px 0;
 }
 .slider-fill {
 	height: 100%;
@@ -674,8 +673,7 @@ const sliderBg = computed(() => {
 	justify-content: space-between;
 	position: relative;
 	z-index: 1;
-	margin-top: auto;
-	padding-top: var(--sp-2);
+	padding-top: 4px;
 }
 .bottom-left {
 	display: flex;
@@ -683,7 +681,7 @@ const sliderBg = computed(() => {
 	gap: var(--sp-3);
 }
 .btn-skip {
-	padding: 10px 16px;
+	padding: 6px 12px;
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.70);
 	backdrop-filter: blur(14px) saturate(180%);
@@ -721,7 +719,7 @@ const sliderBg = computed(() => {
 }
 
 .btn-done {
-	padding: 10px 24px;
+	padding: 6px 16px;
 	border-radius: 999px;
 	display: flex;
 	align-items: center;
@@ -747,7 +745,7 @@ const sliderBg = computed(() => {
 
 /* ====== 自定义输入面板 ====== */
 .custom-panel {
-	margin-top: var(--sp-2);
+	margin-top: 2px;
 	position: relative;
 	z-index: 1;
 	animation: fade-in-up 0.25s var(--ease-spring);
@@ -763,7 +761,7 @@ const sliderBg = computed(() => {
 	-webkit-backdrop-filter: blur(14px) saturate(180%);
 	border: 1px solid rgba(255,255,255,0.45);
 	border-radius: 16px;
-	padding: 10px 14px;
+	padding: 6px 10px;
 	font-size: var(--fs-label);
 	color: var(--clr-text-primary);
 	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);

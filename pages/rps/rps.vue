@@ -1,6 +1,9 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed } from 'vue'
 import NavBar from '@/components/NavBar.vue'
+import { useThemeAware } from '@/composables/useThemeAware'
+
+const { isDark } = useThemeAware()
 
 // 回合规则
 const choices = [
@@ -39,18 +42,6 @@ const isMatchOver = computed(() => {
 const matchStatus = computed(() => {
 	return `${playerScore.value} : ${computerScore.value} / ${winTarget.value}胜`
 })
-
-const computerEmoji = {
-	rock: '🪨',
-	paper: '📄',
-	scissors: '✂️'
-}
-
-const playerEmoji = {
-	rock: '🪨',
-	paper: '📄',
-	scissors: '✂️'
-}
 
 // 结果判断
 function getRandomChoice() {
@@ -155,33 +146,15 @@ function playAgain() {
 	showResultModal.value = false
 	resetAll()
 }
-
-function getPlayerCardClass() {
-	return {
-		'glass-card': true,
-		'player-card': true,
-		'winner': winnerPulse.value === 'player',
-		'loser': winnerPulse.value === 'computer'
-	}
-}
-
-function getComputerCardClass() {
-	return {
-		'glass-card': true,
-		'computer-card': true,
-		'winner': winnerPulse.value === 'computer',
-		'loser': winnerPulse.value === 'player'
-	}
-}
 </script>
 
 <template>
-	<view class="container">
-		<!-- 背景装饰 -->
+	<view class="container" :class="{ 'dark': isDark }">
+		<!-- 背景装饰光晕 -->
 		<view class="bg-decoration">
-			<view class="bg-circle bg-circle-1"></view>
-			<view class="bg-circle bg-circle-2"></view>
-			<view class="bg-circle bg-circle-3"></view>
+			<view class="bg-orb bg-orb-1"></view>
+			<view class="bg-orb bg-orb-2"></view>
+			<view class="bg-orb bg-orb-3"></view>
 		</view>
 
 		<!-- 导航栏 -->
@@ -201,78 +174,87 @@ function getComputerCardClass() {
 			</template>
 		</NavBar>
 
-		<!-- 比赛状态 -->
-		<view class="match-status glass-card">
-			<text class="match-status-text num">{{ matchStatus }}</text>
+		<!-- 比分条 -->
+		<view class="score-bar">
+			<view class="score-side player-side">
+				<text class="score-label">你</text>
+				<text class="score-value num">{{ playerScore }}</text>
+			</view>
+			<view class="score-center">
+				<text class="score-vs">VS</text>
+				<text class="score-target num">BO{{ matchMode }}</text>
+			</view>
+			<view class="score-side computer-side">
+				<text class="score-label">电脑</text>
+				<text class="score-value num">{{ computerScore }}</text>
+			</view>
 		</view>
 
 		<!-- 对战区 -->
 		<view class="battle-area">
-			<!-- 玩家 -->
-			<view :class="getPlayerCardClass()">
-				<view class="card-avatar">
-					<text class="avatar-icon">👤</text>
+			<!-- 玩家卡片 -->
+			<view class="fighter-card player-fighter" :class="{ winner: winnerPulse === 'player', loser: winnerPulse === 'computer' }">
+				<view class="fighter-avatar">
+					<text class="avatar-emoji">🧑</text>
 				</view>
-				<text class="card-name">你</text>
-				<view class="chip-score">
-					<text class="chip-text num">{{ playerScore }}分</text>
+				<text class="fighter-name">你</text>
+				<!-- 出拳显示 -->
+				<view class="fighter-hand" v-if="playerChoice">
+					<text class="hand-emoji" :class="{ 'hand-in': playerChoice }">{{ choices.find(c => c.id === playerChoice)?.icon }}</text>
 				</view>
-				<!-- 玩家出拳 -->
-				<view class="card-hand" v-if="playerChoice">
-					<text
-						class="material-icons hand-icon"
-						:class="{ 'hand-spin': playerChoice }"
-					>{{ choices.find(c => c.id === playerChoice)?.icon }}</text>
+				<view class="fighter-idle" v-else-if="!isPlaying">
+					<text class="idle-icon">✊</text>
+				</view>
+				<view class="fighter-thinking" v-else>
+					<text class="dots">●●●</text>
 				</view>
 				<!-- 胜利光环 -->
-				<view class="glow-ring" v-if="winnerPulse === 'player'"></view>
+				<view class="victory-ring" v-if="winnerPulse === 'player'"></view>
 			</view>
 
-			<!-- VS 文字 + 倒计时 -->
-			<view class="vs-column" @tap="isPlaying || isMatchOver ? null : null">
-				<view class="vs-divider"></view>
-				<view class="vs-circle" v-if="!isPlaying && !playerChoice && !isMatchOver">
-					<text class="vs-text">对战</text>
+			<!-- 中央对战信息 -->
+			<view class="battle-center">
+				<view class="center-line"></view>
+				<view class="center-badge" v-if="!isPlaying && !resultText && !isMatchOver">
+					<text class="badge-text">准备</text>
 				</view>
-				<!-- 倒计时 -->
-				<view class="countdown-overlay" v-if="countdown > 0">
+				<view class="center-countdown" v-if="countdown > 0">
 					<text class="countdown-num num" :key="countdown">{{ countdown }}</text>
 				</view>
-				<!-- 回合结果 -->
-				<view class="round-result" v-if="resultText && !isPlaying">
-					<text class="round-text" :class="roundResult">{{ resultText }}</text>
+				<view class="center-result" v-if="resultText && !isPlaying">
+					<text class="result-text" :class="roundResult">{{ resultText }}</text>
+				</view>
+				<view class="center-badge" v-if="isMatchOver && !showResultModal">
+					<text class="badge-text">结束</text>
 				</view>
 			</view>
 
-			<!-- 电脑 -->
-			<view :class="getComputerCardClass()">
-				<view class="card-avatar">
-					<text class="material-icons avatar-icon">📱</text>
+			<!-- 电脑卡片 -->
+			<view class="fighter-card computer-fighter" :class="{ winner: winnerPulse === 'computer', loser: winnerPulse === 'player' }">
+				<view class="fighter-avatar">
+					<text class="avatar-emoji">🤖</text>
 				</view>
-				<text class="card-name">电脑</text>
-				<view class="chip-score">
-					<text class="chip-text num">{{ computerScore }}分</text>
+				<text class="fighter-name">电脑</text>
+				<!-- 出拳显示 -->
+				<view class="fighter-hand" v-if="computerChoice">
+					<text class="hand-emoji" :class="{ 'hand-in': computerChoice }">{{ choices.find(c => c.id === computerChoice)?.icon }}</text>
 				</view>
-				<!-- 电脑出拳 -->
-				<view class="card-hand" v-if="computerChoice">
-					<text
-						class="material-icons hand-icon"
-						:class="{ 'hand-spin': computerChoice }"
-					>{{ choices.find(c => c.id === computerChoice)?.icon }}</text>
+				<view class="fighter-idle" v-else-if="!isPlaying">
+					<text class="idle-icon">✊</text>
 				</view>
-				<!-- 思考中 -->
-				<view class="card-thinking" v-if="isPlaying && !computerChoice">
-					<text class="thinking-dots">...</text>
+				<view class="fighter-thinking" v-else>
+					<text class="dots">●●●</text>
 				</view>
 				<!-- 胜利光环 -->
-				<view class="glow-ring" v-if="winnerPulse === 'computer'"></view>
+				<view class="victory-ring" v-if="winnerPulse === 'computer'"></view>
 			</view>
 		</view>
 
-		<!-- 底部操作区 -->
-		<view class="bottom-area">
+		<!-- 底部出拳区 -->
+		<view class="action-area">
 			<text class="action-hint" v-if="!isPlaying && !isMatchOver">选择你的出拳</text>
-			<text class="action-hint" v-else-if="isMatchOver">比赛已结束</text>
+			<text class="action-hint" v-else-if="isPlaying">对战中...</text>
+			<text class="action-hint" v-else-if="isMatchOver">比赛结束</text>
 
 			<view class="action-row">
 				<view
@@ -285,7 +267,7 @@ function getComputerCardClass() {
 					}"
 					@tap="play(choice.id)"
 				>
-					<text class="material-icons btn-icon">{{ choice.icon }}</text>
+					<text class="btn-emoji">{{ choice.icon }}</text>
 					<text class="btn-label">{{ choice.label }}</text>
 				</view>
 			</view>
@@ -293,20 +275,22 @@ function getComputerCardClass() {
 
 		<!-- 结果弹窗 -->
 		<view class="modal-mask" v-if="showResultModal" @tap="closeModal">
-			<view class="modal-glass glass-card" @tap.stop>
-				<view class="modal-icon">
-					<text class="material-icons" :style="{ color: finalMatchResult.includes('获') ? '#FFD740' : '#B3261E' }">
-						{{ finalMatchResult.includes('获') ? '🏆' : '😞' }}
-					</text>
+			<view class="modal-card" @tap.stop>
+				<view class="modal-icon-wrap">
+					<text class="modal-icon">{{ finalMatchResult.includes('获') ? '🏆' : '😞' }}</text>
 				</view>
 				<text class="modal-title">{{ finalMatchResult }}</text>
-				<text class="modal-desc num">最终比分 {{ playerScore }} : {{ computerScore }}</text>
+				<view class="modal-score">
+					<text class="modal-score-num num">{{ playerScore }}</text>
+					<text class="modal-score-colon">:</text>
+					<text class="modal-score-num num">{{ computerScore }}</text>
+				</view>
 				<view class="modal-actions">
-					<view class="modal-btn primary" @tap="playAgain">
-						<text>重新开始</text>
+					<view class="modal-btn primary-btn" @tap="playAgain">
+						<text class="modal-btn-text">再来一局</text>
 					</view>
-					<view class="modal-btn secondary" @tap="closeModal">
-						<text>返回首页</text>
+					<view class="modal-btn secondary-btn" @tap="closeModal">
+						<text class="modal-btn-text">关闭</text>
 					</view>
 				</view>
 			</view>
@@ -315,294 +299,365 @@ function getComputerCardClass() {
 </template>
 
 <style scoped>
-/* 容器 */
+/* ═══════════════════════════════════════════════════
+   容器 — 橙红竞技渐变背景
+   ═══════════════════════════════════════════════════ */
 .container {
-	min-height: 100vh;
-	padding: 16px;
-	padding-top: calc(var(--safe-area-top, 24px) + 20px);
-	padding-bottom: calc(var(--safe-area-bottom, 0px) + 20px);
-	background: linear-gradient(135deg, #E0F2F1 0%, #F3E5F5 50%, #FFF5F5 100%);
+	flex: 1;
+	padding: 0;
+	padding-top: calc(var(--safe-area-top, 24px));
+	padding-bottom: 0;
+	background: linear-gradient(160deg, #FFF3E0 0%, #FFE0B2 30%, #FFCCBC 65%, #FCE4EC 100%);
 	display: flex;
 	flex-direction: column;
 	position: relative;
 	overflow: hidden;
+	touch-action: manipulation;
+	-webkit-overflow-scrolling: auto;
+}
+.container.dark {
+	background: linear-gradient(160deg, #1E1410 0%, #2A1A14 30%, #2A1820 65%, #1E1420 100%);
 }
 
-/* 背景装饰 */
+/* ═══════════════════════════════════════════════════
+   背景光晕
+   ═══════════════════════════════════════════════════ */
 .bg-decoration {
 	position: fixed;
 	top: 0; left: 0; right: 0; bottom: 0;
 	pointer-events: none;
 	z-index: 0;
 }
-.bg-circle {
+.bg-orb {
 	position: absolute;
 	border-radius: 50%;
-	opacity: 0.15;
+	filter: blur(40px);
 }
-.bg-circle-1 {
-	width: 260px; height: 260px;
-	background: radial-gradient(circle, #6750A4 0%, transparent 70%);
-	top: -80px; right: -60px;
+.bg-orb-1 {
+	width: 220px; height: 220px;
+	background: radial-gradient(circle, rgba(255, 152, 0, 0.35) 0%, transparent 70%);
+	top: -60px; right: -40px;
 }
-.bg-circle-2 {
-	width: 200px; height: 200px;
-	background: radial-gradient(circle, #00897B 0%, transparent 70%);
-	bottom: 120px; left: -80px;
+.bg-orb-2 {
+	width: 180px; height: 180px;
+	background: radial-gradient(circle, rgba(244, 67, 54, 0.25) 0%, transparent 70%);
+	bottom: 100px; left: -60px;
 }
-.bg-circle-3 {
-	width: 140px; height: 140px;
-	background: radial-gradient(circle, #FFD740 0%, transparent 70%);
-	top: 40%; left: 50%;
+.bg-orb-3 {
+	width: 120px; height: 120px;
+	background: radial-gradient(circle, rgba(255, 193, 7, 0.30) 0%, transparent 70%);
+	top: 35%; left: 45%;
 }
+.dark .bg-orb-1 { background: radial-gradient(circle, rgba(255, 152, 0, 0.12) 0%, transparent 70%); }
+.dark .bg-orb-2 { background: radial-gradient(circle, rgba(244, 67, 54, 0.10) 0%, transparent 70%); }
+.dark .bg-orb-3 { background: radial-gradient(circle, rgba(255, 193, 7, 0.08) 0%, transparent 70%); }
 
-/* 分段器 */
+/* ═══════════════════════════════════════════════════
+   分段器（导航栏内）
+   ═══════════════════════════════════════════════════ */
 .segmented {
 	display: flex;
-	background: rgba(255, 255, 255, 0.72);
+	background: rgba(255, 255, 255, 0.65);
 	backdrop-filter: blur(14px) saturate(180%);
 	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.45);
-	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+	border: 1px solid rgba(255, 255, 255, 0.4);
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 	border-radius: 999px;
 	padding: 2px;
 	gap: 2px;
 }
+.dark .segmented {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.12);
+}
 .seg-item {
-	padding: 6px 12px;
+	padding: 5px 11px;
 	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--clr-text-secondary);
+	transition: all 0.25s var(--ease-spring);
+}
+.seg-item.active {
+	background: linear-gradient(135deg, #FF9800, #FF5722);
+	color: #FFF;
+	box-shadow: 0 2px 12px rgba(255, 87, 34, 0.35);
+}
+.dark .seg-item { color: rgba(255, 255, 255, 0.6); }
+.dark .seg-item.active { color: #FFF; }
+
+/* ═══════════════════════════════════════════════════
+   比分条
+   ═══════════════════════════════════════════════════ */
+.score-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 14px;
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.55);
+	backdrop-filter: blur(14px) saturate(180%);
+	-webkit-backdrop-filter: blur(14px) saturate(180%);
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+	position: relative;
+	z-index: 1;
+	margin-bottom: 2px;
+}
+.dark .score-bar {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.1);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.score-side {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+.score-label {
 	font-size: 12px;
 	font-weight: 600;
 	color: var(--clr-text-secondary);
-	transition: background 0.25s ease, transform 0.15s cubic-bezier(0.2,0.8,0.2,1);
-	cursor: pointer;
 }
-.seg-item:active { transform: scale(0.96); }
-.seg-item.active {
-	background: rgba(103, 80, 164, 0.92);
-	backdrop-filter: blur(14px) saturate(200%);
-	-webkit-backdrop-filter: blur(14px) saturate(200%);
-	border: 1px solid rgba(103, 80, 164, 1);
-	color: var(--clr-text-primary);
-	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+.dark .score-label { color: rgba(255, 255, 255, 0.5); }
+.score-value {
+	font-size: 22px;
+	font-weight: 800;
 }
-
-/* 比赛状态 */
-.match-status {
-	padding: 6px var(--sp-4);
-	border-radius: var(--rd-pill) !important;
-	align-self: center;
-	margin-bottom: var(--sp-3);
-	position: relative;
-	z-index: 1;
+.player-side .score-value { color: #FF6F00; }
+.computer-side .score-value { color: #D32F2F; }
+.dark .player-side .score-value { color: #FFB74D; }
+.dark .computer-side .score-value { color: #EF9A9A; }
+.score-center {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0;
 }
-.match-status-text {
-	font-size: var(--fs-caption);
+.score-vs {
+	font-size: 14px;
+	font-weight: 900;
+	color: var(--clr-text-secondary);
+	letter-spacing: 1px;
+}
+.dark .score-vs { color: rgba(255, 255, 255, 0.4); }
+.score-target {
+	font-size: 10px;
 	font-weight: 600;
-	color: var(--clr-accent);
+	color: var(--clr-text-disabled);
 }
 
-/* 对战区 */
+/* ═══════════════════════════════════════════════════
+   对战区
+   ═══════════════════════════════════════════════════ */
 .battle-area {
+	flex: none;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--sp-3);
-	flex: 1;
+	gap: 4px;
 	position: relative;
 	z-index: 1;
-	padding: var(--sp-2) 0;
+	min-height: 0;
+	padding-top: 12px;
+	margin-bottom: 0;
 }
 
-/* 卡片 */
-.player-card,
-.computer-card {
-	width: 150px;
-	height: 150px;
-	border-radius: 50% !important;
+/* 战斗卡片 */
+.fighter-card {
+	width: 110px;
+	height: 110px;
+	max-width: 28vw;
+	max-height: 28vw;
+	border-radius: 22px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 2px;
 	position: relative;
-	overflow: hidden;
+	overflow: visible;
 	transition: all 0.4s var(--ease-spring);
 	box-sizing: border-box;
 }
-
-.player-card {
-	background: rgba(103, 80, 164, 0.12) !important;
-	backdrop-filter: blur(14px) saturate(180%);
-	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.55);
-	box-shadow: 0 4px 16px rgba(103, 80, 164, 0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+.player-fighter {
+	background: rgba(255, 255, 255, 0.55);
+	backdrop-filter: blur(16px) saturate(180%);
+	-webkit-backdrop-filter: blur(16px) saturate(180%);
+	border: 1.5px solid rgba(255, 152, 0, 0.35);
+	box-shadow: 0 8px 24px rgba(255, 152, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
-.computer-card {
-	background: rgba(233, 30, 99, 0.10) !important;
-	backdrop-filter: blur(14px) saturate(180%);
-	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.55);
-	box-shadow: 0 4px 16px rgba(233, 30, 99, 0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+.computer-fighter {
+	background: rgba(255, 255, 255, 0.55);
+	backdrop-filter: blur(16px) saturate(180%);
+	-webkit-backdrop-filter: blur(16px) saturate(180%);
+	border: 1.5px solid rgba(244, 67, 54, 0.35);
+	box-shadow: 0 8px 24px rgba(244, 67, 54, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.dark .player-fighter {
+	background: rgba(255, 152, 0, 0.08);
+	border-color: rgba(255, 152, 0, 0.25);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+.dark .computer-fighter {
+	background: rgba(244, 67, 54, 0.08);
+	border-color: rgba(244, 67, 54, 0.25);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-/* 获胜 */
-.player-card.winner {
-	border-color: var(--clr-gold) !important;
-	border-width: 2px !important;
-	transform: scale(1.05);
-	box-shadow: 0 0 24px rgba(255, 215, 64, 0.4), inset 0 0 20px rgba(255, 215, 64, 0.08);
+/* 获胜状态 */
+.fighter-card.winner {
+	transform: scale(1.06);
+	border-color: #FFD700 !important;
+	border-width: 2.5px !important;
+	box-shadow: 0 0 30px rgba(255, 215, 0, 0.45), inset 0 0 20px rgba(255, 215, 0, 0.08);
 	animation: gold-pulse 1.2s ease-in-out 2;
 }
-.computer-card.winner {
-	border-color: var(--clr-gold) !important;
-	border-width: 2px !important;
-	transform: scale(1.05);
-	box-shadow: 0 0 24px rgba(255, 215, 64, 0.4), inset 0 0 20px rgba(255, 215, 64, 0.08);
-	animation: gold-pulse 1.2s ease-in-out 2;
+.fighter-card.loser {
+	opacity: 0.45;
+	transform: scale(0.94);
 }
-
-/* 战败 */
-.player-card.loser,
-.computer-card.loser {
-	opacity: 0.5;
-	transform: scale(0.95);
+@keyframes gold-pulse {
+	0%, 100% { box-shadow: 0 0 16px rgba(255, 215, 0, 0.3); }
+	50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.65); }
 }
 
 /* 胜利光环 */
-.glow-ring {
+.victory-ring {
 	position: absolute;
-	inset: -8px;
-	border-radius: 50%;
-	border: 3px solid #FFD740;
+	inset: -10px;
+	border-radius: 32px;
+	border: 3px solid #FFD700;
 	opacity: 0;
-	animation: ring-expand 0.6s ease-out 2;
+	animation: ring-expand 0.7s ease-out 2;
 	pointer-events: none;
 }
-
 @keyframes ring-expand {
-	0% { transform: scale(0.8); opacity: 0.8; }
-	100% { transform: scale(1.15); opacity: 0; }
-}
-
-@keyframes gold-pulse {
-	0%, 100% { box-shadow: 0 0 16px rgba(255, 215, 64, 0.3); }
-	50% { box-shadow: 0 0 36px rgba(255, 215, 64, 0.6); }
+	0% { transform: scale(0.85); opacity: 0.9; }
+	100% { transform: scale(1.2); opacity: 0; }
 }
 
 /* 头像 */
-.card-avatar {
-	width: 36px;
-	height: 36px;
+.fighter-avatar {
+	width: 32px;
+	height: 32px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.72);
-	backdrop-filter: blur(14px) saturate(180%);
-	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.45);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.5);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
-.avatar-icon {
-	font-size: 20px;
-	color: var(--clr-text-secondary);
+.dark .fighter-avatar {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.15);
+}
+.avatar-emoji {
+	font-size: 18px;
 }
 
 /* 名称 */
-.card-name {
+.fighter-name {
 	font-size: 13px;
 	font-weight: 700;
 	color: var(--clr-text-primary);
 }
-
-/* 分数 chip */
-.chip-score {
-	padding: 1px 10px;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.72);
-	backdrop-filter: blur(14px) saturate(180%);
-	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.45);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
-}
-.chip-text {
-	font-size: 11px;
-	font-weight: 600;
-	color: var(--clr-text-secondary);
-}
+.dark .fighter-name { color: rgba(255, 255, 255, 0.85); }
 
 /* 出拳手势 */
-.card-hand {
-	margin-top: 4px;
+.fighter-hand {
+	margin-top: 2px;
 }
-.hand-icon {
-	font-size: 28px;
-	color: var(--clr-accent);
+.hand-emoji {
+	font-size: 26px;
+	display: inline-block;
 }
-.hand-icon.hand-spin {
-	animation: icon-spin-in 0.4s var(--ease-bounce);
+.hand-emoji.hand-in {
+	animation: hand-pop 0.5s var(--ease-bounce);
 }
-@keyframes icon-spin-in {
-	0% { transform: rotate(0deg) scale(0.3); opacity: 0; }
-	60% { transform: rotate(360deg) scale(1.15); opacity: 1; }
-	100% { transform: rotate(360deg) scale(1); }
+@keyframes hand-pop {
+	0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+	60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+	100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* 待机状态 */
+.fighter-idle {
+	margin-top: 2px;
+}
+.idle-icon {
+	font-size: 22px;
+	opacity: 0.35;
 }
 
 /* 思考中 */
-.card-thinking {
-	margin-top: 4px;
+.fighter-thinking {
+	margin-top: 2px;
 }
-.thinking-dots {
-	font-size: 24px;
+.dots {
+	font-size: 14px;
 	font-weight: 700;
-	color: var(--clr-accent);
+	color: var(--clr-text-secondary);
+	letter-spacing: 2px;
 	animation: blink 0.6s ease-in-out infinite;
 }
+.dark .dots { color: rgba(255, 255, 255, 0.5); }
 @keyframes blink {
 	0%, 100% { opacity: 0.3; }
 	50% { opacity: 1; }
 }
 
-/* VS 区域 */
-.vs-column {
+/* ═══════════════════════════════════════════════════
+   中央对战信息
+   ═══════════════════════════════════════════════════ */
+.battle-center {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	height: 140px;
-	width: 40px;
+	width: 48px;
+	height: 110px;
 	position: relative;
 }
-.vs-divider {
+.center-line {
 	position: absolute;
-	top: 0; bottom: 0;
-	width: 1px;
-	background: linear-gradient(to bottom, transparent, rgba(103,80,164,0.3) 30%, rgba(103,80,164,0.3) 70%, transparent);
+	top: 10px; bottom: 10px;
+	width: 2px;
+	background: linear-gradient(to bottom, transparent, rgba(255, 152, 0, 0.25) 20%, rgba(244, 67, 54, 0.25) 80%, transparent);
 }
-.vs-circle {
-	width: 40px;
-	height: 40px;
+.dark .center-line {
+	background: linear-gradient(to bottom, transparent, rgba(255, 152, 0, 0.12) 20%, rgba(244, 67, 54, 0.12) 80%, transparent);
+}
+.center-badge {
+	width: 44px;
+	height: 44px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.85);
-	backdrop-filter: blur(14px) saturate(180%);
-	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.55);
-	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.7);
+	background: rgba(255, 255, 255, 0.75);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	z-index: 1;
 }
-.vs-text {
-	font-size: 12px;
-	font-weight: 800;
-	color: var(--clr-accent);
-	letter-spacing: 1px;
+.dark .center-badge {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.12);
 }
+.badge-text {
+	font-size: 11px;
+	font-weight: 800;
+	color: var(--clr-text-secondary);
+	letter-spacing: 0.5px;
+}
+.dark .badge-text { color: rgba(255, 255, 255, 0.5); }
 
 /* 倒计时 */
-.countdown-overlay {
+.center-countdown {
 	position: absolute;
 	inset: 0;
 	display: flex;
@@ -611,53 +666,75 @@ function getComputerCardClass() {
 	z-index: 5;
 }
 .countdown-num {
-	font-size: 64px;
-	font-weight: 700;
-	color: var(--clr-accent);
+	font-size: 56px;
+	font-weight: 900;
+	background: linear-gradient(135deg, #FF9800, #FF5722);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
 	animation: count-pop 0.7s var(--ease-bounce) both;
-	text-shadow: 0 2px 12px rgba(103,80,164,0.3);
+	filter: drop-shadow(0 2px 8px rgba(255, 87, 34, 0.3));
 }
 @keyframes count-pop {
-	0% { transform: scale(2); opacity: 0; }
-	50% { transform: scale(0.9); opacity: 1; }
+	0% { transform: scale(2.5); opacity: 0; }
+	50% { transform: scale(0.85); opacity: 1; }
 	100% { transform: scale(1); opacity: 1; }
 }
 
 /* 回合结果 */
-.round-result {
+.center-result {
 	position: absolute;
 	z-index: 1;
-	background: var(--clr-surface);
-	border: 1px solid rgba(255,255,255,0.3);
-	border-radius: var(--rd-pill);
-	padding: 4px 14px;
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	border-radius: 999px;
+	padding: 4px 12px;
 	animation: fade-in-up 0.3s var(--ease-spring);
 }
-.round-text {
-	font-size: 13px;
-	font-weight: 700;
+.dark .center-result {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.15);
 }
-.round-text.win { color: var(--clr-gold); }
-.round-text.lose { color: var(--clr-danger); }
-.round-text.draw { color: var(--clr-accent); }
+.result-text {
+	font-size: 12px;
+	font-weight: 800;
+}
+.result-text.win { color: #FF8F00; }
+.result-text.lose { color: #D32F2F; }
+.result-text.draw { color: var(--clr-text-secondary); }
+.dark .result-text.win { color: #FFB74D; }
+.dark .result-text.lose { color: #EF9A9A; }
+.dark .result-text.draw { color: rgba(255, 255, 255, 0.5); }
 
-/* 底部操作区 */
-.bottom-area {
-	margin-top: auto;
+@keyframes fade-in-up {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════
+   底部出拳区
+   ═══════════════════════════════════════════════════ */
+.action-area {
 	position: relative;
 	z-index: 1;
+	padding-top: 2px;
+	margin-top: 0;
 }
 .action-hint {
 	text-align: center;
-	font-size: var(--fs-caption);
+	font-size: 11px;
+	font-weight: 600;
 	color: var(--clr-text-secondary);
-	margin-bottom: var(--sp-2);
+	margin-bottom: 2px;
 	display: block;
 }
+.dark .action-hint { color: rgba(255, 255, 255, 0.45); }
 
 .action-row {
 	display: flex;
-	gap: 12px;
+	gap: 6px;
 }
 
 .action-btn {
@@ -665,55 +742,57 @@ function getComputerCardClass() {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 8px;
-	padding: 16px 12px 14px;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.85);
+	gap: 2px;
+	padding: 8px 8px 6px;
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.65);
 	backdrop-filter: blur(14px) saturate(180%);
 	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.55);
-	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.10), inset 0 1px 0 rgba(255,255,255,0.7);
-	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, box-shadow 0.25s ease;
-	cursor: pointer;
-	min-height: 72px;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+	transition: all 0.2s var(--ease-spring);
+	min-height: 56px;
 }
-.action-btn:hover {
-	box-shadow: 0 6px 24px rgba(31, 28, 48, 0.15), inset 0 1px 0 rgba(255,255,255,0.8);
+.dark .action-btn {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.1);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 .action-btn:active {
-	transform: scale(0.94);
+	transform: scale(0.93);
 }
 .action-btn.pressed {
-	transform: scale(0.94);
-	background: rgba(103, 80, 164, 0.15);
-	backdrop-filter: blur(14px) saturate(200%);
-	-webkit-backdrop-filter: blur(14px) saturate(200%);
-	border: 1px solid rgba(103, 80, 164, 0.55);
-	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+	transform: scale(0.93);
+	background: rgba(255, 152, 0, 0.18);
+	border-color: rgba(255, 152, 0, 0.5);
+	box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3);
+}
+.dark .action-btn.pressed {
+	background: rgba(255, 152, 0, 0.12);
+	border-color: rgba(255, 152, 0, 0.3);
 }
 .action-btn.disabled {
-	opacity: 0.45;
+	opacity: 0.4;
 	pointer-events: none;
-	backdrop-filter: blur(6px);
-	-webkit-backdrop-filter: blur(6px);
 }
 
-.btn-icon {
+.btn-emoji {
 	font-size: 28px;
-	color: var(--clr-accent);
 }
 .btn-label {
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 700;
 	color: var(--clr-text-primary);
-	letter-spacing: 0.3px;
 }
+.dark .btn-label { color: rgba(255, 255, 255, 0.7); }
 
-/* 结果弹窗 */
+/* ═══════════════════════════════════════════════════
+   结果弹窗
+   ═══════════════════════════════════════════════════ */
 .modal-mask {
 	position: fixed;
 	inset: 0;
-	background: rgba(0,0,0,0.45);
+	background: rgba(0, 0, 0, 0.5);
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
 	display: flex;
@@ -722,41 +801,74 @@ function getComputerCardClass() {
 	z-index: 100;
 	animation: fade-in 0.2s ease;
 }
-.modal-glass {
-	width: 300px;
-	padding: var(--sp-6);
-	background: rgba(255, 255, 255, 0.85);
+.modal-card {
+	width: 280px;
+	padding: 28px 24px 20px;
+	background: rgba(255, 255, 255, 0.88);
 	backdrop-filter: blur(24px) saturate(180%);
 	-webkit-backdrop-filter: blur(24px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.55);
-	border-radius: 24px;
-	box-shadow: 0 8px 32px rgba(31, 28, 48, 0.20), inset 0 1px 0 rgba(255,255,255,0.8);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: 28px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--sp-3);
+	gap: 12px;
 	animation: spring-pop 0.35s var(--ease-bounce);
 }
-.modal-icon span {
-	font-size: 56px;
+.dark .modal-card {
+	background: rgba(30, 28, 35, 0.92);
+	border-color: rgba(255, 255, 255, 0.1);
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+.modal-icon-wrap {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.dark .modal-icon-wrap {
+	background: rgba(255, 255, 255, 0.08);
+}
+.modal-icon {
+	font-size: 40px;
 }
 .modal-title {
-	font-size: var(--fs-title);
-	font-weight: 700;
+	font-size: 18px;
+	font-weight: 800;
 	color: var(--clr-text-primary);
 	text-align: center;
 }
-.modal-desc {
-	font-size: var(--fs-label);
-	color: var(--clr-text-secondary);
-	text-align: center;
+.dark .modal-title { color: rgba(255, 255, 255, 0.9); }
+.modal-score {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
+.modal-score-num {
+	font-size: 28px;
+	font-weight: 900;
+}
+.modal-score-num:first-child { color: #FF6F00; }
+.modal-score-num:last-child { color: #D32F2F; }
+.dark .modal-score-num:first-child { color: #FFB74D; }
+.dark .modal-score-num:last-child { color: #EF9A9A; }
+.modal-score-colon {
+	font-size: 22px;
+	font-weight: 700;
+	color: var(--clr-text-secondary);
+}
+.dark .modal-score-colon { color: rgba(255, 255, 255, 0.4); }
+
 .modal-actions {
 	display: flex;
 	flex-direction: column;
-	gap: var(--sp-2);
+	gap: 8px;
 	width: 100%;
-	margin-top: var(--sp-2);
+	margin-top: 4px;
 }
 .modal-btn {
 	padding: 12px;
@@ -764,46 +876,51 @@ function getComputerCardClass() {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	cursor: pointer;
-	transition: transform 0.15s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, box-shadow 0.25s ease;
+	transition: transform 0.15s var(--ease-spring);
 }
 .modal-btn:active { transform: scale(0.97); }
-.modal-btn.primary {
-	background: rgba(103, 80, 164, 0.92);
-	backdrop-filter: blur(14px) saturate(200%);
-	-webkit-backdrop-filter: blur(14px) saturate(200%);
-	border: 1px solid rgba(103, 80, 164, 1);
-	box-shadow: 0 4px 20px rgba(103, 80, 164, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+.primary-btn {
+	background: linear-gradient(135deg, #FF9800, #FF5722);
+	box-shadow: 0 4px 16px rgba(255, 87, 34, 0.35);
 }
-.modal-btn.primary text {
-	font-size: var(--fs-body);
+.primary-btn .modal-btn-text {
+	font-size: 15px;
 	font-weight: 700;
-	color: var(--clr-text-primary);
+	color: #FFF;
 }
-.modal-btn.secondary {
-	background: rgba(255, 255, 255, 0.72);
-	backdrop-filter: blur(14px) saturate(180%);
-	-webkit-backdrop-filter: blur(14px) saturate(180%);
-	border: 1px solid rgba(255,255,255,0.45);
-	box-shadow: 0 4px 16px rgba(31, 28, 48, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+.secondary-btn {
+	background: rgba(255, 255, 255, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0.08);
 }
-.modal-btn.secondary text {
-	font-size: var(--fs-body);
+.dark .secondary-btn {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+.secondary-btn .modal-btn-text {
+	font-size: 15px;
 	font-weight: 600;
 	color: var(--clr-text-primary);
 }
+.dark .secondary-btn .modal-btn-text { color: rgba(255, 255, 255, 0.7); }
 
 @keyframes fade-in {
 	from { opacity: 0; }
 	to { opacity: 1; }
 }
+@keyframes spring-pop {
+	0% { transform: scale(0.8); opacity: 0; }
+	60% { transform: scale(1.05); opacity: 1; }
+	100% { transform: scale(1); opacity: 1; }
+}
 
-/* 响应式 */
+/* ═══════════════════════════════════════════════════
+   响应式
+   ═══════════════════════════════════════════════════ */
 @media screen and (max-height: 640px) {
-	.player-card,
-	.computer-card {
-		width: 120px;
-		height: 120px;
+	.fighter-card {
+		width: 96px;
+		height: 96px;
 	}
+	.battle-center { height: 96px; }
 }
 </style>

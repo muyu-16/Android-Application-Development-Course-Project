@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useChipStore } from '@/stores/chip'
@@ -300,11 +300,11 @@ function formatTime(ts) {
    基础布局
    ============================================================ */
 .container {
-	min-height: 100vh;
+	flex: 1;
 	background: var(--clr-bg-primary);
 	padding: 16px;
 	padding-top: calc(var(--safe-area-top, 24px) + 12px);
-	padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+	padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 64px + 80px);
 }
 
 [data-theme="dark"] .container {
@@ -630,7 +630,7 @@ function formatTime(ts) {
    ============================================================ */
 .fab {
 	position: fixed;
-	bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+	bottom: calc(env(safe-area-inset-bottom, 0px) + 64px + 24px);
 	right: 16px;
 	width: 56px;
 	height: 56px;

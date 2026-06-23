@@ -5,7 +5,7 @@ import { ref, onMounted } from 'vue'
 
 defineProps({
 	title: { type: String, default: '' },
-	showBack: { type: Boolean, default: true }
+	showBack: { type: Boolean, default: false }
 })
 
 const statusBarHeight = ref(0)

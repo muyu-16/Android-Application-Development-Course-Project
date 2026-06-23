@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 /**
  * 转盘页面 — 基于 vue-wheel-spinner 官方 Demo 视觉风格
  *
@@ -563,7 +563,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
    明亮背景，干净现代
    ══════════════════════════════════════ */
 .container {
-	min-height: 100vh;
+	flex: 1;
 	background: #f0f0f5;
 	display: flex;
 	flex-direction: column;
@@ -800,7 +800,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
    ══════════════════════════════════════ */
 .bottom-bar {
 	padding: 0 32rpx 32rpx;
-	padding-bottom: calc(var(--safe-area-bottom, 0px) + 32rpx);
+	padding-bottom: calc(var(--safe-area-bottom, 0px) + 64px + 32rpx);
 	position: relative;
 	z-index: 2;
 }

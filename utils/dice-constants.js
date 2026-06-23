@@ -33,15 +33,34 @@ export const DOTS = {
 	6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]]
 }
 
-// 3D 骰子六面变换
-export const CUBE_FACES = [
-	{ num: 1, transform: 'rotateY(0deg) translateZ(56px) scale(1.04)' },
-	{ num: 2, transform: 'rotateX(90deg) translateZ(56px) scale(1.04)' },
-	{ num: 3, transform: 'rotateY(-90deg) translateZ(56px) scale(1.04)' },
-	{ num: 4, transform: 'rotateY(90deg) translateZ(56px) scale(1.04)' },
-	{ num: 5, transform: 'rotateX(-90deg) translateZ(56px) scale(1.04)' },
-	{ num: 6, transform: 'rotateX(180deg) translateZ(56px) scale(1.04)' }
-]
+// D6 立方体基础尺寸（rpx），与 dice.vue 中 .dice-3d 尺寸联动
+export const D6_BASE_SIZE = 220  // 对应原 110px
+export const D6_HALF = Math.floor(D6_BASE_SIZE / 2)  // 110rpx
+
+// 3D 骰子六面变换（动态生成，half 为当前骰子尺寸的一半，单位 rpx）
+export function getCubeFaces(half) {
+	return [
+		{ num: 1, transform: 'rotateY(0deg) translateZ(' + half + 'rpx) scale(1.04)' },
+		{ num: 2, transform: 'rotateX(90deg) translateZ(' + half + 'rpx) scale(1.04)' },
+		{ num: 3, transform: 'rotateY(-90deg) translateZ(' + half + 'rpx) scale(1.04)' },
+		{ num: 4, transform: 'rotateY(90deg) translateZ(' + half + 'rpx) scale(1.04)' },
+		{ num: 5, transform: 'rotateX(-90deg) translateZ(' + half + 'rpx) scale(1.04)' },
+		{ num: 6, transform: 'rotateX(180deg) translateZ(' + half + 'rpx) scale(1.04)' }
+	]
+}
+
+// 点位偏移系数（rpx），对应原 20px
+export const DOT_OFFSET_FACTOR = 40
+
+// 根据当前骰子尺寸计算实际点位置（rpx）
+export function getDotPositions(num, size) {
+	const half = size / 2
+	const offset = DOT_OFFSET_FACTOR * (size / D6_BASE_SIZE)
+	return DOTS[num].map(([x, y]) => [
+		half + x * offset,
+		half + y * offset
+	])
+}
 
 // 点数 → 3D 旋转角度
 export const FACE_OFFSET = {
