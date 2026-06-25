@@ -48,16 +48,14 @@ export const useThemeStore = defineStore('theme', () => {
 		// App 端：通过 uni 事件通知各页面（Android/iOS 无 DOM）
 		uni.$emit('themeChanged', theme)
 
-		// App 端：设置导航栏和页面背景色
-		try {
-			const bgColor = theme === 'dark' ? '#141218' : '#FAF8FF'
-			const textColor = theme === 'dark' ? '#F5EFF7' : '#1C1B1F'
-			uni.setNavigationBarColor({
-				frontColor: textColor === '#F5EFF7' ? '#ffffff' : '#000000',
-				backgroundColor: bgColor,
-				animation: { duration: 300, timingFunc: 'easeIn' }
-			})
-		} catch (e) {}
+		// App 端：设置导航栏和页面背景色（H5 端不支持，需 catch 异步 reject）
+		const bgColor = theme === 'dark' ? '#141218' : '#FAF8FF'
+		const textColor = theme === 'dark' ? '#F5EFF7' : '#1C1B1F'
+		uni.setNavigationBarColor({
+			frontColor: textColor === '#F5EFF7' ? '#ffffff' : '#000000',
+			backgroundColor: bgColor,
+			animation: { duration: 300, timingFunc: 'easeIn' }
+		}).catch(() => {})
 	}
 
 	function setTheme(mode) {

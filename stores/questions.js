@@ -118,13 +118,30 @@ export const useQuestionStore = defineStore('questions', () => {
 
 	function getRandomWithHistory() {
 		const content = getRandom()
-		history.value.push({
+		const record = {
 			id: Date.now(),
 			mode: mode.value,
 			intensity: intensity.value,
-			content
-		})
+			content,
+			status: 'pending', // 'pending' | 'answered' | 'skipped'
+			timestamp: Date.now()
+		}
+		history.value.push(record)
 		return content
+	}
+
+	// 更新最近一条记录的答题状态
+	function updateLastStatus(status) {
+		if (history.value.length === 0) return
+		const last = history.value[history.value.length - 1]
+		// 仅当当前状态为 pending 时才更新，避免重复统计
+		if (last.status === 'pending') {
+			last.status = status
+		}
+	}
+
+	function clearHistory() {
+		history.value = []
 	}
 
 	function addCustomQuestion(text) {
@@ -159,6 +176,8 @@ export const useQuestionStore = defineStore('questions', () => {
 		historyRecent,
 		getRandom,
 		getRandomWithHistory,
+		updateLastStatus,
+		clearHistory,
 		addCustomQuestion,
 		setMode,
 		setIntensity,
