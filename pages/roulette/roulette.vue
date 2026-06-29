@@ -18,8 +18,10 @@
 import { ref, computed, onBeforeUnmount } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useRouletteStore, SECTOR_COLORS, SECTOR_TEXT_COLORS } from '@/stores/roulette'
+import { useThemeAware } from '@/composables/useThemeAware'
 
 const store = useRouletteStore()
+const { isDark } = useThemeAware()
 
 // ══════════════════════════════════════
 // vue-wheel-spinner 核心参数
@@ -377,7 +379,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
 </script>
 
 <template>
-	<view class="container">
+	<view class="container" :class="{ dark: isDark }">
 		<!-- 导航 -->
 		<NavBar title="轮盘">
 			<template #right>
@@ -613,7 +615,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
 }
 
 .result-emoji { font-size: 64rpx; }
-.result-label { font-size: 28rpx; color: #888888; font-weight: 500; }
+.result-label { font-size: 28rpx; color: #666666; font-weight: 500; }
 .result-value { font-size: 48rpx; font-weight: 800; color: #eb4d4b; text-align: center; line-height: 1.2; }
 
 .result-close {
@@ -812,7 +814,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
 	margin-bottom: 20rpx;
 }
 
-.history-label { font-size: 24rpx; color: #888888; font-weight: 500; flex-shrink: 0; }
+.history-label { font-size: 24rpx; color: #666666; font-weight: 500; flex-shrink: 0; }
 .history-scroll { flex: 1; overflow: hidden; }
 .history-tags { display: flex; gap: 8rpx; flex-wrap: nowrap; }
 
@@ -885,7 +887,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
 .drawer-title { font-size: 32rpx; font-weight: 700; color: #222222; }
 
 .drawer-reset { padding: 8rpx 24rpx; border-radius: 999rpx; background: #f0f0f5; }
-.drawer-reset-text { font-size: 24rpx; font-weight: 600; color: #888888; }
+.drawer-reset-text { font-size: 24rpx; font-weight: 600; color: #666666; }
 
 .drawer-add { display: flex; gap: 16rpx; padding: 0 32rpx 20rpx; }
 .drawer-input {
@@ -959,4 +961,78 @@ function applyPreset(preset) { store.applyPreset(preset) }
 }
 .item-btn-text { font-size: 24rpx; color: #555555; }
 .item-btn.remove .item-btn-text { color: #eb4d4b; }
+
+/* ══════════════════════════════════════
+   暗色模式
+   ══════════════════════════════════════ */
+.container.dark {
+	background: #1a1a2e;
+}
+
+.container.dark .nav-btn {
+	background: rgba(235, 77, 75, 0.85);
+}
+
+.container.dark .result-card {
+	background: #2a2a3e;
+	box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.4);
+}
+.container.dark .result-label { color: #aaaaaa; }
+.container.dark .result-close { background: #eb4d4b; }
+
+.container.dark .wheel-frame {
+	background: #16213e;
+	box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.4), 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+}
+
+.container.dark .pointer-body {
+	border-top-color: #e2e8f0;
+}
+
+.container.dark .spin-button {
+	border-color: #2a2a3e;
+}
+
+.container.dark .history-tag {
+	background: #2a2a3e;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+}
+.container.dark .history-tag-text { color: #cccccc; }
+
+.container.dark .preset-chip {
+	background: #2a2a3e;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+}
+.container.dark .preset-chip-text { color: #e2e8f0; }
+
+.container.dark .drawer {
+	background: #2a2a3e;
+	box-shadow: 0 -8rpx 40rpx rgba(0, 0, 0, 0.3);
+}
+.container.dark .drawer-title { color: #e2e8f0; }
+.container.dark .drawer-reset {
+	background: rgba(255, 255, 255, 0.08);
+}
+.container.dark .drawer-reset-text { color: #aaaaaa; }
+
+.container.dark .drawer-input {
+	background: #1a1a2e;
+	border-color: rgba(255, 255, 255, 0.1);
+	color: #e2e8f0;
+}
+.container.dark .drawer-input::placeholder { color: #999999; }
+
+.container.dark .drawer-item {
+	background: #1a1a2e;
+}
+.container.dark .item-label { color: #e2e8f0; }
+.container.dark .item-input {
+	background: #2a2a3e;
+	border-color: #eb4d4b;
+	color: #e2e8f0;
+}
+
+.container.dark .handle-bar { background: #444455; }
+
+.container.dark .history-label { color: #aaaaaa; }
 </style>

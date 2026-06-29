@@ -68,8 +68,10 @@ function onTabTap(tab) {
 .content-area {
 	flex: 1;
 	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 	/* 为底部导航栏预留空间，防止内容被遮挡 */
-	padding-bottom: calc(64px + var(--safe-area-bottom, 0px));
+	padding-bottom: calc(72px + var(--safe-area-bottom, 0px));
 }
 
 /* ══════ 底部功能导航栏 ══════ */
@@ -78,7 +80,7 @@ function onTabTap(tab) {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	height: calc(64px + var(--safe-area-bottom, 0px));
+	height: calc(72px + var(--safe-area-bottom, 0px));
 	padding-bottom: var(--safe-area-bottom, 0px);
 	display: flex;
 	align-items: center;
@@ -90,7 +92,9 @@ function onTabTap(tab) {
 	z-index: 50;
 }
 
-[data-theme="dark"] .tab-bar {
+/* 真心话深色页面需要深色 Tab 栏 */
+[data-theme="dark"] .tab-bar,
+.dark-tab-bar {
 	background: rgba(28, 27, 31, 0.72);
 	border-top-color: rgba(255, 255, 255, 0.08);
 }
@@ -101,19 +105,19 @@ function onTabTap(tab) {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 4rpx;
+	gap: 6rpx;
 	height: 100%;
-	min-height: 48px;
+	min-height: 52px;
 	position: relative;
 	transition: transform 0.15s;
-	padding: 6rpx 0;
+	padding: 8rpx 0;
 }
 
 .tab-item:active { transform: scale(0.94); }
 
 .tab-icon-wrap {
-	width: 56rpx;
-	height: 56rpx;
+	width: 64rpx;
+	height: 64rpx;
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
@@ -127,7 +131,7 @@ function onTabTap(tab) {
 }
 
 .tab-icon {
-	font-size: 44rpx;
+	font-size: 52rpx;
 	color: var(--clr-text-secondary);
 	transition: color 0.25s;
 }
@@ -137,7 +141,7 @@ function onTabTap(tab) {
 }
 
 .tab-label {
-	font-size: 20rpx;
+	font-size: 24rpx;
 	font-weight: 600;
 	color: var(--clr-text-secondary);
 	transition: color 0.25s;

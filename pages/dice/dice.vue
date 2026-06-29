@@ -630,7 +630,7 @@ const cubeFaces = computed(() => getCubeFaces(d6Half.value))
 }
 .history-empty text {
 	font-size: 28rpx;
-	color: var(--clr-text-disabled);
+	color: var(--clr-text-secondary);
 }
 .history-item {
 	display: flex;
@@ -681,7 +681,7 @@ const cubeFaces = computed(() => getCubeFaces(d6Half.value))
 }
 .hi-time {
 	font-size: 24rpx;
-	color: var(--clr-text-disabled);
+	color: var(--clr-text-secondary);
 }
 .hi-del {
 	width: 40rpx;
@@ -693,6 +693,6 @@ const cubeFaces = computed(() => getCubeFaces(d6Half.value))
 }
 .hi-del text {
 	font-size: 22rpx;
-	color: var(--clr-text-disabled);
+	color: var(--clr-text-secondary);
 }
 </style>

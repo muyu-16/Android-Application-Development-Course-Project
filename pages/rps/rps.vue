@@ -269,9 +269,16 @@ const actionHint = computed(() => {
 	// PvP
 	if (pvpPhase.value === 'p1') return `${playerLabel.value}出拳`
 	if (pvpPhase.value === 'p2') return `${opponentLabel.value}出拳`
-	if (pvpPhase.value === 'result') return '点击继续下一轮'
+	if (pvpPhase.value === 'result') return '点击任意位置继续下一轮'
 	return ''
 })
+
+// PvP result阶段点击对战区进入下一轮
+function handleBattleAreaTap() {
+	if (activeMode.value === 'pvp' && pvpPhase.value === 'result' && !isMatchOver.value) {
+		nextRound()
+	}
+}
 </script>
 
 <template>
@@ -342,7 +349,7 @@ const actionHint = computed(() => {
 		</view>
 
 		<!-- 对战区 -->
-		<view class="battle-area">
+		<view class="battle-area" @tap="handleBattleAreaTap">
 			<!-- 玩家1卡片 -->
 			<view class="fighter-card player-fighter" :class="{ winner: winnerPulse === 'player', loser: winnerPulse === 'opponent' }">
 				<view class="sparkles" v-if="winnerPulse === 'player'">
@@ -556,7 +563,7 @@ const actionHint = computed(() => {
 .dark .segmented { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
 .seg-item { padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--clr-text-secondary); transition: all 0.25s var(--ease-spring); }
 .seg-item.active { background: linear-gradient(135deg, #06B6D4, #0E7490); color: #FFF; box-shadow: 0 2px 12px rgba(6,182,212,0.4); }
-.dark .seg-item { color: rgba(255,255,255,0.6); }
+.dark .seg-item { color: rgba(255,255,255,0.75); }
 .dark .seg-item.active { color: #FFF; }
 
 .rule-btn {
@@ -639,7 +646,7 @@ const actionHint = computed(() => {
 .score-side { display: flex; align-items: center; gap: 6px; }
 .opponent-side { flex-direction: row-reverse; }
 .score-label { font-size: 12px; font-weight: 600; color: var(--clr-text-secondary); }
-.dark .score-label { color: rgba(255,255,255,0.5); }
+.dark .score-label { color: rgba(255,255,255,0.7); }
 .score-value { font-size: 22px; font-weight: 800; transition: transform 0.3s var(--ease-bounce); }
 .score-value.bump { animation: score-bump 0.4s var(--ease-bounce); }
 @keyframes score-bump {
@@ -659,8 +666,8 @@ const actionHint = computed(() => {
 .dark .opponent-side .score-value { color: #FDA4AF; }
 .score-center { display: flex; flex-direction: column; align-items: center; gap: 0; }
 .score-vs { font-size: 14px; font-weight: 900; color: var(--clr-text-secondary); letter-spacing: 1px; }
-.dark .score-vs { color: rgba(255,255,255,0.4); }
-.score-target { font-size: 10px; font-weight: 600; color: var(--clr-text-disabled); }
+.dark .score-vs { color: rgba(255,255,255,0.65); }
+.score-target { font-size: 10px; font-weight: 600; color: var(--clr-text-secondary); }
 
 /* 对战区 */
 .battle-area {
@@ -741,7 +748,7 @@ const actionHint = computed(() => {
 .idle-icon { font-size: 22px; opacity: 0.35; }
 .fighter-thinking { margin-top: 2px; animation: thinking-shake 0.5s ease-in-out infinite; }
 .dots { font-size: 14px; font-weight: 700; color: var(--clr-text-secondary); letter-spacing: 2px; animation: blink 0.6s ease-in-out infinite; }
-.dark .dots { color: rgba(255,255,255,0.5); }
+.dark .dots { color: rgba(255,255,255,0.7); }
 @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
 @keyframes thinking-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
 
@@ -756,7 +763,7 @@ const actionHint = computed(() => {
 }
 .dark .center-badge { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
 .badge-text { font-size: 11px; font-weight: 800; color: var(--clr-text-secondary); letter-spacing: 0.5px; }
-.dark .badge-text { color: rgba(255,255,255,0.5); }
+.dark .badge-text { color: rgba(255,255,255,0.7); }
 .center-countdown { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 5; }
 .countdown-num { font-size: 56px; font-weight: 900; background: linear-gradient(135deg, #06B6D4, #0E7490); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: count-pop 0.7s var(--ease-bounce) both; filter: drop-shadow(0 2px 8px rgba(6,182,212,0.4)); }
 @keyframes count-pop { 0% { transform: scale(2.5); opacity: 0; } 50% { transform: scale(0.85); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
@@ -768,7 +775,7 @@ const actionHint = computed(() => {
 .result-text.draw { color: var(--clr-text-secondary); }
 .dark .result-text.win { color: #67E8F9; }
 .dark .result-text.lose { color: #FDA4AF; }
-.dark .result-text.draw { color: rgba(255,255,255,0.5); }
+.dark .result-text.draw { color: rgba(255,255,255,0.7); }
 @keyframes fade-in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* P2遮挡层 */
@@ -804,14 +811,14 @@ const actionHint = computed(() => {
 .p2-cover-title { font-size: 16px; font-weight: 800; color: var(--clr-text-primary); }
 .dark .p2-cover-title { color: rgba(255,255,255,0.9); }
 .p2-cover-desc { font-size: 12px; color: var(--clr-text-secondary); text-align: center; }
-.dark .p2-cover-desc { color: rgba(255,255,255,0.5); }
+.dark .p2-cover-desc { color: rgba(255,255,255,0.7); }
 .p2-cover-btn { margin-top: 6px; padding: 10px 28px; border-radius: 999px; background: linear-gradient(135deg, #06B6D4, #0E7490); box-shadow: 0 4px 16px rgba(6,182,212,0.4); }
 .p2-cover-btn-text { font-size: 14px; font-weight: 700; color: #FFF; }
 
 /* 出拳区 */
 .action-area { position: relative; z-index: 1; padding-top: 2px; padding-bottom: 12px; }
 .action-hint { text-align: center; font-size: 11px; font-weight: 600; color: var(--clr-text-secondary); margin-bottom: 2px; display: block; }
-.dark .action-hint { color: rgba(255,255,255,0.45); }
+.dark .action-hint { color: rgba(255,255,255,0.65); }
 .action-row { display: flex; gap: 6px; }
 .action-btn {
 	flex: 1;
@@ -863,7 +870,7 @@ const actionHint = computed(() => {
 .dark .modal-score-num:first-child { color: #67E8F9; }
 .dark .modal-score-num:last-child { color: #FDA4AF; }
 .modal-score-colon { font-size: 22px; font-weight: 700; color: var(--clr-text-secondary); }
-.dark .modal-score-colon { color: rgba(255,255,255,0.4); }
+.dark .modal-score-colon { color: rgba(255,255,255,0.6); }
 .modal-actions { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 4px; }
 .modal-btn { padding: 12px; border-radius: 999px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s var(--ease-spring); }
 .modal-btn:active { transform: scale(0.97); }
@@ -882,7 +889,7 @@ const actionHint = computed(() => {
 .rule-item { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 12px; background: rgba(255,255,255,0.45); }
 .dark .rule-item { background: rgba(255,255,255,0.05); }
 .rule-emoji { font-size: 22px; }
-.rule-arrow { font-size: 14px; color: var(--clr-text-disabled); }
+.rule-arrow { font-size: 14px; color: var(--clr-text-secondary); }
 .rule-desc { font-size: 13px; font-weight: 600; color: var(--clr-text-primary); margin-left: 4px; }
 .dark .rule-desc { color: rgba(255,255,255,0.7); }
 .rules-mode-desc { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 8px 12px; border-radius: 12px; background: rgba(6,182,212,0.08); }
@@ -890,7 +897,7 @@ const actionHint = computed(() => {
 .rules-mode-title { font-size: 13px; font-weight: 800; color: #0E7490; }
 .dark .rules-mode-title { color: #67E8F9; }
 .rules-mode-text { font-size: 11px; color: var(--clr-text-secondary); }
-.dark .rules-mode-text { color: rgba(255,255,255,0.5); }
+.dark .rules-mode-text { color: rgba(255,255,255,0.7); }
 .rules-close-btn { margin-top: 4px; }
 
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }

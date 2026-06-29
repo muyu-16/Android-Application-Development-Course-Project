@@ -67,7 +67,7 @@ page, view, text, button, input, textarea, scroll-view, swiper, swiper-item {
 
 	--clr-text-primary: #1C1B1F;     /* 主文字 — #FAF8FF 上对比度 ~20:1 ✓ */
 	--clr-text-secondary: #49454F;   /* 次要文字 — #FAF8FF 上对比度 ~6.5:1 ✓ */
-	--clr-text-disabled: #9E9E9E;    /* 禁用文字 — #FAF8FF 上对比度 ~3.5:1 */
+	--clr-text-disabled: #757575;    /* 禁用文字 — #FAF8FF 上对比度 ~4.6:1 ✓ */
 
 	--clr-accent: #6750A4;           /* 强调色 / 紫色 */
 	--clr-accent-on: #FFFFFF;        /* 强调色上的文字 */
