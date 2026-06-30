@@ -290,12 +290,12 @@ const cubeFaces = computed(() => getCubeFaces(d6Half.value))
 
 <style scoped>
 .dice-page {
-	flex: 1;
+	min-height: 100vh;
 	background: linear-gradient(160deg, #F3EDF7 0%, #E8DEF8 40%, #FCE4EC 100%);
 	display: flex;
 	flex-direction: column;
 	padding: 0 16px;
-	padding-bottom: calc(var(--safe-area-bottom, 0px) + 64px + 24px);
+	padding-bottom: 16px;
 	position: relative;
 	overflow: hidden;
 }

@@ -19,8 +19,7 @@
 		"usingComponents": true,
 		"optimization": {
 			"subPackages": true
-		},
-		"lazyCodeLoading": "requiredComponents"
+		}
 	},
 	"app": {
 		"distribute": {

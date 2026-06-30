@@ -565,7 +565,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
    明亮背景，干净现代
    ══════════════════════════════════════ */
 .container {
-	flex: 1;
+	min-height: 100vh;
 	background: #f0f0f5;
 	display: flex;
 	flex-direction: column;
@@ -802,7 +802,7 @@ function applyPreset(preset) { store.applyPreset(preset) }
    ══════════════════════════════════════ */
 .bottom-bar {
 	padding: 0 32rpx 32rpx;
-	padding-bottom: calc(var(--safe-area-bottom, 0px) + 64px + 32rpx);
+	padding-bottom: 16px;
 	position: relative;
 	z-index: 2;
 }

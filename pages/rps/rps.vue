@@ -521,7 +521,7 @@ function handleBattleAreaTap() {
    背景：极地深海 → 冰蓝
    ═══════════════════════════════════════════ */
 .container {
-	flex: 1;
+	min-height: 100vh;
 	padding: 0;
 	padding-top: calc(var(--safe-area-top, 24px));
 	padding-bottom: 0;
@@ -612,7 +612,7 @@ function handleBattleAreaTap() {
 	transition: opacity 0.3s var(--ease-spring);
 }
 .mode-tab.active::after { opacity: 1; }
-.mode-tab > * { position: relative; z-index: 1; }
+.mode-tab > text { position: relative; z-index: 1; }
 .dark .mode-tab { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
 .mode-tab.active {
 	background: linear-gradient(135deg, rgba(6,182,212,0.20), rgba(14,116,144,0.12));

@@ -317,7 +317,7 @@ onMounted(() => { currentText.value = store.getRandomWithHistory() })
 .page {
 	display: flex;
 	flex-direction: column;
-	flex: 1;
+	min-height: 100vh;
 	background: #0B1120;
 	position: relative;
 	overflow: hidden;
