@@ -9,3 +9,4 @@ dist/
 *.tmp
 *.bak
 Thumbs.db
+unpackage/

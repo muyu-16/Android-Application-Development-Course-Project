@@ -49,5 +49,43 @@
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#FFF5F5"
 	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#6750A4",
+		"backgroundColor": "#ffffff",
+		"borderStyle": "white",
+		"list": [
+			{
+				"pagePath": "pages/dice/dice",
+				"text": "骰子",
+				"iconPath": "static/tab/dice.png",
+				"selectedIconPath": "static/tab/dice-active.png"
+			},
+			{
+				"pagePath": "pages/roulette/roulette",
+				"text": "轮盘",
+				"iconPath": "static/tab/roulette.png",
+				"selectedIconPath": "static/tab/roulette-active.png"
+			},
+			{
+				"pagePath": "pages/truth/truth",
+				"text": "真心话",
+				"iconPath": "static/tab/truth.png",
+				"selectedIconPath": "static/tab/truth-active.png"
+			},
+			{
+				"pagePath": "pages/rps/rps",
+				"text": "猜拳",
+				"iconPath": "static/tab/rps.png",
+				"selectedIconPath": "static/tab/rps-active.png"
+			},
+			{
+				"pagePath": "pages/chip/chip",
+				"text": "筹码",
+				"iconPath": "static/tab/chip.png",
+				"selectedIconPath": "static/tab/chip-active.png"
+			}
+		]
+	},
 	"uniIdRouter": {}
 }
