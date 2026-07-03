@@ -324,11 +324,11 @@ function handleResetAll() {
    基础布局
    ============================================================ */
 .container {
-	flex: 1;
+	min-height: 100vh;
 	background: var(--clr-bg-primary);
 	padding: 16px;
 	padding-top: calc(var(--safe-area-top, 24px) + 12px);
-	padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 72px + 80px);
+	padding-bottom: 16px;
 }
 
 /* ============================================================

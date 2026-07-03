@@ -446,7 +446,7 @@ page {
 
 /* reduced-motion — 低端机缩短动效 */
 @media (prefers-reduced-motion: reduce) {
-	* { animation-duration: 0.25s !important; transition-duration: 0.25s !important; }
+	view, text, scroll-view, swiper, button, input, textarea { animation-duration: 0.25s !important; transition-duration: 0.25s !important; }
 }
 
 /* ══════════════════════════════════════════════════════════════
