@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useThemeAware } from '@/composables/useThemeAware'
@@ -523,7 +523,6 @@ function handleBattleAreaTap() {
 .container {
 	min-height: 100vh;
 	padding: 0;
-	padding-top: calc(var(--safe-area-top, 24px));
 	padding-bottom: 0;
 	background: linear-gradient(160deg, #F0F9FF 0%, #E0F2FE 28%, #BAE6FD 62%, #A5F3FC 100%);
 	display: flex;

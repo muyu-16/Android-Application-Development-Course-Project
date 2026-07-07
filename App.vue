@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<script setup>
 import { onLaunch } from '@dcloudio/uni-app'
 import { useThemeStore } from '@/stores/theme'
 
@@ -7,6 +7,28 @@ onLaunch(() => {
 	// 确保主题在启动时正确应用
 	const theme = useThemeStore()
 	theme.resolveTheme()
+
+	// 通过 JS 获取实际状态栏高度，覆盖 CSS env() 默认值
+	// 微信小程序中 env(safe-area-inset-top) 可能不准确
+	try {
+		const sysInfo = uni.getSystemInfoSync()
+		const sbh = sysInfo.statusBarHeight || 24
+		// #ifdef MP-WEIXIN
+		let navH = 44
+		try {
+			const rect = uni.getMenuButtonBoundingClientRect()
+			navH = (rect.top - sbh) * 2 + rect.height
+		} catch (e) {}
+		document.documentElement.style.setProperty('--safe-area-top', sbh + 'px')
+		document.documentElement.style.setProperty('--safe-top', sbh + 'px')
+		document.documentElement.style.setProperty('--nav-bar-height', navH + 'px')
+		// #endif
+
+		// #ifndef MP-WEIXIN
+		document.documentElement.style.setProperty('--safe-area-top', sbh + 'px')
+		document.documentElement.style.setProperty('--safe-top', sbh + 'px')
+		// #endif
+	} catch (e) {}
 })
 </script>
 
@@ -125,6 +147,8 @@ page, view, text, button, input, textarea, scroll-view, swiper, swiper-item {
 	/* 兼容别名 */
 	--safe-top: env(safe-area-inset-top, 24px);
 	--safe-bottom: env(safe-area-inset-bottom, 0px);
+	/* 导航栏内容区高度（由 JS 动态设置） */
+	--nav-bar-height: 44px;
 
 	/* ── 行高 ── */
 	--lh-tight: 1.15;

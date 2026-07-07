@@ -1,5 +1,6 @@
 <!-- components/NavBar.vue -->
 <!-- 统一导航栏组件：返回按钮 + 标题 + 右侧插槽 -->
+<!-- 适配微信小程序：状态栏高度 + 胶囊按钮避让 -->
 <script setup>
 import { ref, onMounted } from 'vue'
 
@@ -9,11 +10,27 @@ defineProps({
 })
 
 const statusBarHeight = ref(0)
+const navBarHeight = ref(0)
+const menuButtonInfo = ref(null)
 
 onMounted(() => {
-	// 获取系统状态栏高度，确保导航条不被状态栏遮挡
 	const sysInfo = uni.getSystemInfoSync()
 	statusBarHeight.value = sysInfo.statusBarHeight || 0
+
+	// #ifdef MP-WEIXIN
+	try {
+		const rect = uni.getMenuButtonBoundingClientRect()
+		menuButtonInfo.value = rect
+		// navContent 高度 = 胶囊底部距离状态栏 + 胶囊上方间距
+		navBarHeight.value = (rect.top - sysInfo.statusBarHeight) * 2 + rect.height
+	} catch (e) {
+		navBarHeight.value = 44
+	}
+	// #endif
+
+	// #ifndef MP-WEIXIN
+	navBarHeight.value = 44
+	// #endif
 })
 
 const goBack = () => {
@@ -23,7 +40,7 @@ const goBack = () => {
 
 <template>
 	<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
-		<view class="nav-content">
+		<view class="nav-content" :style="{ height: navBarHeight + 'px' }">
 			<view class="nav-left">
 				<text v-if="showBack" class="nav-back" @tap="goBack">&#8592;</text>
 				<text class="nav-title">{{ title }}</text>
@@ -44,7 +61,8 @@ const goBack = () => {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: 56px;
+	/* height 由内联 style 动态控制 */
+	min-height: 44px;
 	padding: 0 16px;
 }
 

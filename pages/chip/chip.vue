@@ -327,8 +327,7 @@ function handleResetAll() {
 	min-height: 100vh;
 	background: var(--clr-bg-primary);
 	padding: 16px;
-	padding-top: calc(var(--safe-area-top, 24px) + 12px);
-	padding-bottom: 16px;
+	padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 72px + 80px);
 }
 
 /* ============================================================

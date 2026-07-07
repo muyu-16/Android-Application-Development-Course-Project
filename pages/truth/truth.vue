@@ -4,6 +4,30 @@ import { useQuestionStore } from '@/stores/questions'
 
 const store = useQuestionStore()
 
+// 微信小程序适配：状态栏高度 + 胶囊按钮
+const statusBarHeight = ref(0)
+const menuButtonTop = ref(0)
+const navContentHeight = ref(44)
+
+onMounted(() => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
+
+	// #ifdef MP-WEIXIN
+	try {
+		const rect = uni.getMenuButtonBoundingClientRect()
+		menuButtonTop.value = rect.top
+		navContentHeight.value = (rect.top - statusBarHeight.value) * 2 + rect.height
+	} catch (e) {
+		navContentHeight.value = 44
+	}
+	// #endif
+
+	// #ifndef MP-WEIXIN
+	navContentHeight.value = 44
+	// #endif
+})
+
 // ─── 题目 ───
 const currentText = ref('')
 const isRevealed = ref(false)
@@ -131,10 +155,12 @@ onMounted(() => { currentText.value = store.getRandomWithHistory() })
 	</view>
 
 	<!-- 顶栏 -->
-	<view class="topbar">
-		<text class="topbar-title">真心话大冒险</text>
-		<view class="topbar-btn" @tap="showHistory = true">
-			<text class="topbar-btn-icon">📋</text>
+	<view class="topbar" :style="{ paddingTop: statusBarHeight + 'px' }">
+		<view class="topbar-content" :style="{ height: navContentHeight + 'px' }">
+			<text class="topbar-title">真心话大冒险</text>
+			<view class="topbar-btn" @tap="showHistory = true">
+				<text class="topbar-btn-icon">📋</text>
+			</view>
 		</view>
 	</view>
 
@@ -359,12 +385,16 @@ onMounted(() => { currentText.value = store.getRandomWithHistory() })
 .topbar {
 	flex-shrink: 0;
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 12px 20px;
-	padding-top: calc(var(--safe-area-top, 0px) + 12px);
+	flex-direction: column;
 	position: relative;
 	z-index: 2;
+}
+.topbar-content {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 20px;
+	min-height: 44px;
 }
 .topbar-title {
 	font-size: 22px;
