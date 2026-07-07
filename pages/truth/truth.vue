@@ -8,6 +8,7 @@ const store = useQuestionStore()
 const statusBarHeight = ref(0)
 const menuButtonTop = ref(0)
 const navContentHeight = ref(44)
+const capsuleWidth = ref(0)
 
 onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
@@ -18,6 +19,7 @@ onMounted(() => {
 		const rect = uni.getMenuButtonBoundingClientRect()
 		menuButtonTop.value = rect.top
 		navContentHeight.value = (rect.top - statusBarHeight.value) * 2 + rect.height
+		capsuleWidth.value = (sysInfo.windowWidth - rect.right) + rect.width
 	} catch (e) {
 		navContentHeight.value = 44
 	}
@@ -156,7 +158,7 @@ onMounted(() => { currentText.value = store.getRandomWithHistory() })
 
 	<!-- 顶栏 -->
 	<view class="topbar" :style="{ paddingTop: statusBarHeight + 'px' }">
-		<view class="topbar-content" :style="{ height: navContentHeight + 'px' }">
+		<view class="topbar-content" :style="{ height: navContentHeight + 'px', paddingRight: capsuleWidth ? capsuleWidth + 'px' : undefined }">
 			<text class="topbar-title">真心话大冒险</text>
 			<view class="topbar-btn" @tap="showHistory = true">
 				<text class="topbar-btn-icon">📋</text>

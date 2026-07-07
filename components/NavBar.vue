@@ -11,7 +11,7 @@ defineProps({
 
 const statusBarHeight = ref(0)
 const navBarHeight = ref(0)
-const menuButtonInfo = ref(null)
+const capsuleWidth = ref(0)
 
 onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
@@ -20,9 +20,9 @@ onMounted(() => {
 	// #ifdef MP-WEIXIN
 	try {
 		const rect = uni.getMenuButtonBoundingClientRect()
-		menuButtonInfo.value = rect
-		// navContent 高度 = 胶囊底部距离状态栏 + 胶囊上方间距
 		navBarHeight.value = (rect.top - sysInfo.statusBarHeight) * 2 + rect.height
+		// 右侧避让宽度 = 胶囊右侧到屏幕右侧的距离 + 胶囊宽度
+		capsuleWidth.value = (sysInfo.windowWidth - rect.right) + rect.width
 	} catch (e) {
 		navBarHeight.value = 44
 	}
@@ -40,7 +40,7 @@ const goBack = () => {
 
 <template>
 	<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
-		<view class="nav-content" :style="{ height: navBarHeight + 'px' }">
+		<view class="nav-content" :style="{ height: navBarHeight + 'px', paddingRight: capsuleWidth ? capsuleWidth + 'px' : undefined }">
 			<view class="nav-left">
 				<text v-if="showBack" class="nav-back" @tap="goBack">&#8592;</text>
 				<text class="nav-title">{{ title }}</text>
